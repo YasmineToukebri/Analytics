@@ -1,13 +1,11 @@
 server:
-  port: ${SERVER_PORT:8085}
+  port: ${SERVER_PORT:8083}
 
 spring:
-  application:
-    name: course-management
   datasource:
     host: ${DB_HOST:localhost}
     port: ${DB_PORT:5432}
-    name: ${POSTGRES_DB:postgres}
+    name: ${POSTGRES_DB:analytics_db}
     url: jdbc:postgresql://${spring.datasource.host}:${spring.datasource.port}/${spring.datasource.name}
     username: ${POSTGRES_USER:admin}
     password: ${POSTGRES_PASSWORD:password}
