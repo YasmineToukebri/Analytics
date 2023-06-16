@@ -1,14 +1,12 @@
 package com.example.Analytics.models;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,14 +14,18 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 @Entity
-public class PassQuiz {
+@Table(name = "session_action")
+public class SessionAction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @Column(name = "user_name")
     private String userName;
-    private UUID eventId;
-    private String quizId;
-    private LocalDateTime passedAt;
+    @Column(name = "event_id")
+    private UUID roomId;
+    @Column(name = "action")
+    private String action;
+    @Column(name = "action_at")
+    private LocalDateTime actionAt;
 }

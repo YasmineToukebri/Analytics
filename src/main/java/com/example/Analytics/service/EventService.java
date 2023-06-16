@@ -19,10 +19,8 @@ public class EventService implements EventKpService {
 
     private final EventKpiRepository eventKpiRepository;
     private final ViewEventRepository viewEventRepository;
-    private final JoinRoomRepository joinRoomRepository;
-    private final EndMeetingRepository endMeetingRepository;
-    private final SendQuizRepository sendQuizRepository;
-    private final PassQuizRepository passQuizRepository;
+    private final sessionAction sessionActionRepository;
+    private final quizAction quizzActionRepository;
 
 
     @Override
@@ -59,44 +57,27 @@ public class EventService implements EventKpService {
         long countAll = eventKpiRepository.count();
         long countByUsername = eventKpiRepository.countByUserName("ilyes");
         System.out.println(countByUsername);
-        for (SseEmitter emitter : this.emitters) {
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("message")
-                        .data(countAll));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        this.emitData("addKpi",countAll+"");
     }
 
     @Override
     public void viewEvent(ViewEvent viewEvent) {
-        viewEvent=  viewEventRepository.save(viewEvent);
+        viewEventRepository.save(viewEvent);
+        long countAll = viewEventRepository.countAllByEventId(viewEvent.getEventId());
+        this.emitData("viewEvent",countAll+"");
     }
 
     @Override
-    public void joinRoom(JoinRoom joinRoom) {
-        joinRoom = joinRoomRepository.save(joinRoom);
-
-    }
-
-    @Override
-    public void endMeeting(EndMeeting endMeeting) {
-        endMeeting = endMeetingRepository.save(endMeeting);
+    public void handleSessionAction(SessionAction sessionAction) {
+        sessionActionRepository.save(sessionAction);
 
     }
 
     @Override
-    public void sendQuiz(SendQuiz sendQuiz) {
-        sendQuiz = sendQuizRepository.save(sendQuiz);
-
-    }
-
-    @Override
-    public void passQuiz(PassQuiz passQuiz) {
-        passQuiz = passQuizRepository.save(passQuiz);
-
+    public void handleQuizzAction(QuizzAction quizzAction) {
+        quizzActionRepository.save(quizzAction);
+        long countAll = quizzActionRepository.countAllByEventId(quizzAction.getEventId());
+        this.emitData("quizzAction",countAll+"");
     }
 }
 

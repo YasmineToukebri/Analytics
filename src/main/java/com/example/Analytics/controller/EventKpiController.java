@@ -1,16 +1,13 @@
 package com.example.Analytics.controller;
 
-import com.example.Analytics.models.*;
+import com.example.Analytics.models.EventKpi;
+import com.example.Analytics.models.ViewEvent;
 import com.example.Analytics.service.EventKpService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -34,23 +31,19 @@ public class EventKpiController {
     }
 
     @PostMapping("/join-room")
-    void joinRoomKpi(@RequestBody JoinRoom joinRoom) {
-        service.joinRoom(joinRoom);
+    void joinRoomKpi( ) {
     }
 
     @PostMapping("/end-meeting")
-    void endRoomKpi(@RequestBody EndMeeting endMeeting) {
-        service.endMeeting(endMeeting);
+    void endRoomKpi( ) {
     }
 
     @PostMapping("/send-quiz")
-    void sendQuizKpi(@RequestBody SendQuiz sendQuiz) {
-        service.sendQuiz(sendQuiz);
+    void sendQuizKpi(  ) {
     }
 
     @PostMapping("/pass-quiz")
-    void passQuizKpi(@RequestBody PassQuiz passQuiz) {
-        service.passQuiz(passQuiz);
+    void passQuizKpi(  ) {
     }
 
 }
