@@ -65,8 +65,8 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public void viewEvent(ViewEvent viewEvent) {
-        long countAll = viewEventRepository.countAllByEventId(viewEvent.getEventId());
+    public void viewEvent(UUID viewEvent) {
+        long countAll = viewEventRepository.countAllByEventId(viewEvent);
         this.emitData("viewEvent",countAll+"");
     }
 
@@ -80,7 +80,8 @@ public class EventService implements EventKpService {
         Session session = Session.builder()
                 .id(UUID.randomUUID())
                 .userName(sessionAction.getUserName())
-                .roomId(sessionAction.getRoomId())
+//                .roomId(sessionAction.getRoomId())
+                .roomId(UUID.randomUUID())
                 .enterActionAt(LocalDateTime.now())
                 .build();
         sessionRepository.save(session);
@@ -92,14 +93,20 @@ public class EventService implements EventKpService {
         Session session = sessionRepository.findAllByUserName(sessionAction.getUserName());
         session.setLeaveActionAt(LocalDateTime.now());
         sessionRepository.save(session);
+
+    }
+
+    @Override
+    public void getSessionDuration(String username){
+        Session session = sessionRepository.findAllByUserName(username);
         long minutes = session.getLeaveActionAt().getMinute() - session.getEnterActionAt().getMinute();
         long hours = session.getLeaveActionAt().getHour() - session.getEnterActionAt().getHour();
         this.emitData("sessionAction",hours+"h"+minutes+"m");
     }
 
     @Override
-    public void countEventQuizzResponses(QuizzAction quizzAction) {
-        long countAll = quizzActionRepository.countAllByEventId(quizzAction.getEventId());
+    public void countEventQuizzResponses(UUID eventId) {
+        long countAll = quizzActionRepository.countAllByEventId(eventId);
         this.emitData("quizzAction",countAll+"");
     }
 
@@ -117,6 +124,7 @@ public class EventService implements EventKpService {
 
     @Override
     public void persistQuizz(QuizzAction quizzAction) {
+        quizzAction.setPassedAt(LocalDateTime.now());
         quizzActionRepository.save(quizzAction);
     }
 }

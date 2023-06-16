@@ -23,6 +23,4 @@ public class SessionAction {
     private String userName;
     @Column(name = "event_id")
     private UUID roomId;
-    @Column(name = "action")
-    private String action;
 }

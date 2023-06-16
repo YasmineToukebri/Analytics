@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -42,30 +43,35 @@ public class EventKpiController {
         service.handleClosingSession(sessionAction);
     }
 
-    @PostMapping("/persist-quiz")
-    void passQuizKpi(QuizzAction quizzAction) {
+    @PostMapping("/send-quiz")
+    void passQuizKpi(@RequestBody  QuizzAction quizzAction) {
         service.persistQuizz(quizzAction);
     }
 
 
     @GetMapping("/quizz-by-user")
-    void countQuizzByUser(String userName) {
+    void countQuizzByUser(@RequestParam(name = "username") String userName) {
         service.countQuizzByUser(userName);
     }
 
+    @GetMapping("/quizz-by-event")
+    void countQuizzByEvent(@RequestParam(name = "eventid") UUID eventId) {
+        service.countEventQuizzResponses(eventId);
+    }
+
     @GetMapping("/views-by-user")
-    void countViewsByUser(String userName) {
+    void countViewsByUser(@RequestParam(name = "username") String userName) {
         service.countViewsByUser(userName);
     }
 
     @GetMapping("/views-by-event")
-    void countViewsByEvent(ViewEvent viewEvent) {
+    void countViewsByEvent(@RequestParam(name = "eventid") UUID viewEvent) {
         service.viewEvent(viewEvent);
     }
-    @GetMapping("/Quizz-by-event")
-    void countQuizzByEvent(QuizzAction quizzAction) {
-        service.countEventQuizzResponses(quizzAction);
-    }
 
+    @GetMapping("/session-duration")
+    void getSessionDuration(@RequestParam(name = "username") String username) {
+        service.getSessionDuration(username);
+    }
 
 }

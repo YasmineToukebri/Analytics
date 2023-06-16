@@ -7,12 +7,13 @@ import com.example.Analytics.models.ViewEvent;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 
 public interface EventKpService {
     void addKpi(EventKpi eventKpi);
 
-    void viewEvent(ViewEvent viewEvent);
+    void viewEvent(UUID viewEvent);
     SseEmitter subscribe() throws IOException;
     void emitData(String action,String data);
 
@@ -22,7 +23,9 @@ public interface EventKpService {
 
     void handleClosingSession(SessionAction sessionAction);
 
-    void countEventQuizzResponses(QuizzAction quizzAction);
+    void getSessionDuration(String username);
+
+    void countEventQuizzResponses(UUID eventId);
 
     void countQuizzByUser(String userName);
 

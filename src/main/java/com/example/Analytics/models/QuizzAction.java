@@ -26,8 +26,6 @@ public class QuizzAction {
     private UUID eventId;
     @Column(name = "quiz_id")
     private String quizId;
-    @Column(name = "action")
-    private String action;
     @Column(name = "action_at")
-    private LocalDateTime actionAt;
+    private LocalDateTime passedAt;
 }
