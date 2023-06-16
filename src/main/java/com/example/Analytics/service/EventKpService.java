@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface EventKpService {
     void addKpi(EventKpi eventKpi);
 
-    void viewEvent(UUID viewEvent);
+    long viewEvent(UUID viewEvent);
     SseEmitter subscribe() throws IOException;
     void emitData(String action,String data);
 
@@ -25,11 +25,11 @@ public interface EventKpService {
 
     void getSessionDuration(String username);
 
-    void countEventQuizzResponses(UUID eventId);
+    long countEventQuizzResponses(UUID eventId);
 
-    void countQuizzByUser(String userName);
+    long countQuizzByUser(String userName);
 
-    void countViewsByUser(String userName);
+    long countViewsByUser(String userName);
 
     void persistQuizz(QuizzAction quizzAction);
 }

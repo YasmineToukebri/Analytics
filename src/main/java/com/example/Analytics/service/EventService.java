@@ -65,15 +65,18 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public void viewEvent(UUID viewEvent) {
+    public long viewEvent(UUID viewEvent) {
         long countAll = viewEventRepository.countAllByEventId(viewEvent);
         this.emitData("viewEvent",countAll+"");
+        return countAll;
     }
 
     @Override
     public void handleViewAction(ViewEvent viewEvent){
         viewEvent.setSeenAt(LocalDateTime.now());
         viewEventRepository.save(viewEvent);
+        this.emitData("viewEvent",this.countViewsByUser(viewEvent.getUserName()) + "");
+        this.emitData("viewEvent",this.viewEvent(viewEvent.getEventId()) + "");
     }
 
     @Override
@@ -81,7 +84,6 @@ public class EventService implements EventKpService {
         Session session = Session.builder()
                 .id(UUID.randomUUID())
                 .userName(sessionAction.getUserName())
-//                .roomId(sessionAction.getRoomId())
                 .roomId(UUID.randomUUID())
                 .enterActionAt(LocalDateTime.now())
                 .build();
@@ -114,27 +116,33 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public void countEventQuizzResponses(UUID eventId) {
+    public long countEventQuizzResponses(UUID eventId) {
         long countAll = quizzActionRepository.countAllByEventId(eventId);
         this.emitData("quizzAction",countAll+"");
+        return countAll;
     }
 
     @Override
-    public void countQuizzByUser(String userName) {
+    public long countQuizzByUser(String userName) {
         long countAll = quizzActionRepository.countAllByUserName(userName);
         this.emitData("quizzAction",countAll+"");
+        return countAll;
     }
 
     @Override
-    public void countViewsByUser(String userName) {
+    public long countViewsByUser(String userName) {
         long countAll = viewEventRepository.countAllByUserName(userName);
         this.emitData("count By User",countAll+"");
+        return countAll;
     }
 
     @Override
     public void persistQuizz(QuizzAction quizzAction) {
         quizzAction.setPassedAt(LocalDateTime.now());
         quizzActionRepository.save(quizzAction);
+        this.countEventQuizzResponses(quizzAction.getEventId());
+        this.emitData(  "quizzAction",this.countQuizzByUser(quizzAction.getUserName())+"");
+
     }
 }
 
