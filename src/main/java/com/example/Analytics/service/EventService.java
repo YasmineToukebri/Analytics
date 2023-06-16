@@ -75,6 +75,8 @@ public class EventService implements EventKpService {
     public void handleViewAction(ViewEvent viewEvent){
         viewEvent.setSeenAt(LocalDateTime.now());
         viewEventRepository.save(viewEvent);
+        this.emitData("viewEvent",this.countViewsByUser(viewEvent.getUserName()) + "");
+        this.emitData("viewEvent",this.viewEvent(viewEvent.getEventId()) + "");
     }
 
     @Override
@@ -82,17 +84,24 @@ public class EventService implements EventKpService {
         Session session = Session.builder()
                 .id(UUID.randomUUID())
                 .userName(sessionAction.getUserName())
-//                .roomId(sessionAction.getRoomId())
                 .roomId(UUID.randomUUID())
                 .enterActionAt(LocalDateTime.now())
                 .build();
-        sessionRepository.save(session);
+        if(sessionRepository.findAllByUserName(sessionAction.getUserName()) == null && sessionRepository.findAllByRoomId(sessionAction.getRoomId()) == null){
+            sessionRepository.save(session);
+        }
+        else {
+            Session session1 = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId());
+            session1.setEnterActionAt(LocalDateTime.now());
+            sessionRepository.save(session1);
+        }
 
     }
 
     @Override
     public void handleClosingSession(SessionAction sessionAction) {
-        Session session = sessionRepository.findAllByUserName(sessionAction.getUserName());
+        UUID sessionId = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId()).getId();
+        Session session = sessionRepository.findById(sessionId).get();
         session.setLeaveActionAt(LocalDateTime.now());
         sessionRepository.save(session);
 
@@ -132,6 +141,9 @@ public class EventService implements EventKpService {
     public void persistQuizz(QuizzAction quizzAction) {
         quizzAction.setPassedAt(LocalDateTime.now());
         quizzActionRepository.save(quizzAction);
+        this.countEventQuizzResponses(quizzAction.getEventId());
+        this.emitData(  "quizzAction",this.countQuizzByUser(quizzAction.getUserName())+"");
+
     }
 }
 
