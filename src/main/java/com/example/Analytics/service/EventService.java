@@ -72,6 +72,7 @@ public class EventService implements EventKpService {
 
     @Override
     public void handleViewAction(ViewEvent viewEvent){
+        viewEvent.setSeenAt(LocalDateTime.now());
         viewEventRepository.save(viewEvent);
     }
 
@@ -84,13 +85,21 @@ public class EventService implements EventKpService {
                 .roomId(UUID.randomUUID())
                 .enterActionAt(LocalDateTime.now())
                 .build();
-        sessionRepository.save(session);
+        if(sessionRepository.findAllByUserName(sessionAction.getUserName()) == null && sessionRepository.findAllByRoomId(sessionAction.getRoomId()) == null){
+            sessionRepository.save(session);
+        }
+        else {
+            Session session1 = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId());
+            session1.setEnterActionAt(LocalDateTime.now());
+            sessionRepository.save(session1);
+        }
 
     }
 
     @Override
     public void handleClosingSession(SessionAction sessionAction) {
-        Session session = sessionRepository.findAllByUserName(sessionAction.getUserName());
+        UUID sessionId = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId()).getId();
+        Session session = sessionRepository.findById(sessionId).get();
         session.setLeaveActionAt(LocalDateTime.now());
         sessionRepository.save(session);
 

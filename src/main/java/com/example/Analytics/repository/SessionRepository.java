@@ -10,4 +10,7 @@ import java.util.UUID;
 @Repository
 public interface SessionRepository extends JpaRepository<Session, UUID> {
     Session findAllByUserName(String userName);
+    Session findAllByRoomId(UUID roomId);
+
+    Session findAllByUserNameAndRoomId(String userName, UUID roomId);
 }
