@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface ViewEventRepository extends JpaRepository<ViewEvent, UUID> {
     long countAllByEventId(UUID eventId);
+    long countAllByUserName(String userName);
 }

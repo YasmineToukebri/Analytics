@@ -1,13 +1,18 @@
 package com.example.Analytics.service;
 
 import com.example.Analytics.dto.DataToEmit;
+import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.*;
-import com.example.Analytics.repository.*;
+import com.example.Analytics.repository.EventKpiRepository;
+import com.example.Analytics.repository.SessionRepository;
+import com.example.Analytics.repository.ViewEventRepository;
+import com.example.Analytics.repository.quizAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,9 +24,8 @@ public class EventService implements EventKpService {
 
     private final EventKpiRepository eventKpiRepository;
     private final ViewEventRepository viewEventRepository;
-    private final sessionAction sessionActionRepository;
     private final quizAction quizzActionRepository;
-
+    private final SessionRepository sessionRepository;
 
     @Override
     public SseEmitter subscribe() throws IOException {
@@ -62,22 +66,58 @@ public class EventService implements EventKpService {
 
     @Override
     public void viewEvent(ViewEvent viewEvent) {
-        viewEventRepository.save(viewEvent);
         long countAll = viewEventRepository.countAllByEventId(viewEvent.getEventId());
         this.emitData("viewEvent",countAll+"");
     }
 
     @Override
+    public void handleViewAction(ViewEvent viewEvent){
+        viewEventRepository.save(viewEvent);
+    }
+
+    @Override
     public void handleSessionAction(SessionAction sessionAction) {
-        sessionActionRepository.save(sessionAction);
+        Session session = Session.builder()
+                .id(UUID.randomUUID())
+                .userName(sessionAction.getUserName())
+                .roomId(sessionAction.getRoomId())
+                .enterActionAt(LocalDateTime.now())
+                .build();
+        sessionRepository.save(session);
 
     }
 
     @Override
-    public void handleQuizzAction(QuizzAction quizzAction) {
-        quizzActionRepository.save(quizzAction);
+    public void handleClosingSession(SessionAction sessionAction) {
+        Session session = sessionRepository.findAllByUserName(sessionAction.getUserName());
+        session.setLeaveActionAt(LocalDateTime.now());
+        sessionRepository.save(session);
+        long minutes = session.getLeaveActionAt().getMinute() - session.getEnterActionAt().getMinute();
+        long hours = session.getLeaveActionAt().getHour() - session.getEnterActionAt().getHour();
+        this.emitData("sessionAction",hours+"h"+minutes+"m");
+    }
+
+    @Override
+    public void countEventQuizzResponses(QuizzAction quizzAction) {
         long countAll = quizzActionRepository.countAllByEventId(quizzAction.getEventId());
         this.emitData("quizzAction",countAll+"");
+    }
+
+    @Override
+    public void countQuizzByUser(String userName) {
+        long countAll = quizzActionRepository.countAllByUserName(userName);
+        this.emitData("quizzAction",countAll+"");
+    }
+
+    @Override
+    public void countViewsByUser(String userName) {
+        long countAll = viewEventRepository.countAllByUserName(userName);
+        this.emitData("count By User",countAll+"");
+    }
+
+    @Override
+    public void persistQuizz(QuizzAction quizzAction) {
+        quizzActionRepository.save(quizzAction);
     }
 }
 
