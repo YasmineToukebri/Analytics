@@ -5,24 +5,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+@Entity
 @Data
+@Builder
+@Table(name = "sessions")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-
-@Entity
-public class JoinRoom {
+public class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @Column(name = "user_name")
     private String userName;
+    @Column(name = "event_id")
     private UUID roomId;
-    private LocalDateTime joinedAt;
+    @Column(name = "action")
+    private String action;
+    @Column(name = "enter_action_at")
+    private LocalDateTime enterActionAt;
+    @Column(name = "leave_action_at")
+    private LocalDateTime leaveActionAt;
 }
+

@@ -1,13 +1,18 @@
 package com.example.Analytics.service;
 
 import com.example.Analytics.dto.DataToEmit;
+import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.*;
-import com.example.Analytics.repository.*;
+import com.example.Analytics.repository.EventKpiRepository;
+import com.example.Analytics.repository.SessionRepository;
+import com.example.Analytics.repository.ViewEventRepository;
+import com.example.Analytics.repository.quizAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,11 +24,8 @@ public class EventService implements EventKpService {
 
     private final EventKpiRepository eventKpiRepository;
     private final ViewEventRepository viewEventRepository;
-    private final JoinRoomRepository joinRoomRepository;
-    private final EndMeetingRepository endMeetingRepository;
-    private final SendQuizRepository sendQuizRepository;
-    private final PassQuizRepository passQuizRepository;
-
+    private final quizAction quizzActionRepository;
+    private final SessionRepository sessionRepository;
 
     @Override
     public SseEmitter subscribe() throws IOException {
@@ -59,44 +61,77 @@ public class EventService implements EventKpService {
         long countAll = eventKpiRepository.count();
         long countByUsername = eventKpiRepository.countByUserName("ilyes");
         System.out.println(countByUsername);
-        for (SseEmitter emitter : this.emitters) {
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("message")
-                        .data(countAll));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        this.emitData("addKpi",countAll+"");
     }
 
     @Override
-    public void viewEvent(ViewEvent viewEvent) {
-        viewEvent=  viewEventRepository.save(viewEvent);
+    public long viewEvent(UUID viewEvent) {
+        long countAll = viewEventRepository.countAllByEventId(viewEvent);
+        this.emitData("viewEvent",countAll+"");
+        return countAll;
     }
 
     @Override
-    public void joinRoom(JoinRoom joinRoom) {
-        joinRoom = joinRoomRepository.save(joinRoom);
-
+    public void handleViewAction(ViewEvent viewEvent){
+        viewEvent.setSeenAt(LocalDateTime.now());
+        viewEventRepository.save(viewEvent);
     }
 
     @Override
-    public void endMeeting(EndMeeting endMeeting) {
-        endMeeting = endMeetingRepository.save(endMeeting);
-
-    }
-
-    @Override
-    public void sendQuiz(SendQuiz sendQuiz) {
-        sendQuiz = sendQuizRepository.save(sendQuiz);
+    public void handleSessionAction(SessionAction sessionAction) {
+        Session session = Session.builder()
+                .id(UUID.randomUUID())
+                .userName(sessionAction.getUserName())
+//                .roomId(sessionAction.getRoomId())
+                .roomId(UUID.randomUUID())
+                .enterActionAt(LocalDateTime.now())
+                .build();
+        sessionRepository.save(session);
 
     }
 
     @Override
-    public void passQuiz(PassQuiz passQuiz) {
-        passQuiz = passQuizRepository.save(passQuiz);
+    public void handleClosingSession(SessionAction sessionAction) {
+        Session session = sessionRepository.findAllByUserName(sessionAction.getUserName());
+        session.setLeaveActionAt(LocalDateTime.now());
+        sessionRepository.save(session);
 
+    }
+
+    @Override
+    public long getSessionDuration(String username){
+        Session session = sessionRepository.findAllByUserName(username);
+        long minutes = session.getLeaveActionAt().getMinute() - session.getEnterActionAt().getMinute();
+        long hours = session.getLeaveActionAt().getHour() - session.getEnterActionAt().getHour();
+        this.emitData("sessionAction",hours+"h"+minutes+"m");
+        return minutes;
+    }
+
+    @Override
+    public long countEventQuizzResponses(UUID eventId) {
+        long countAll = quizzActionRepository.countAllByEventId(eventId);
+        this.emitData("quizzAction",countAll+"");
+        return countAll;
+    }
+
+    @Override
+    public long countQuizzByUser(String userName) {
+        long countAll = quizzActionRepository.countAllByUserName(userName);
+        this.emitData("quizzAction",countAll+"");
+        return countAll;
+    }
+
+    @Override
+    public long countViewsByUser(String userName) {
+        long countAll = viewEventRepository.countAllByUserName(userName);
+        this.emitData("count By User",countAll+"");
+        return countAll;
+    }
+
+    @Override
+    public void persistQuizz(QuizzAction quizzAction) {
+        quizzAction.setPassedAt(LocalDateTime.now());
+        quizzActionRepository.save(quizzAction);
     }
 }
 

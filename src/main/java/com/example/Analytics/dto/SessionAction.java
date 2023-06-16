@@ -1,28 +1,26 @@
-package com.example.Analytics.models;
+package com.example.Analytics.dto;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.time.LocalDateTime;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 @Entity
-public class EndMeeting {
+@Table(name = "session_action")
+public class SessionAction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @Column(name = "user_name")
     private String userName;
+    @Column(name = "event_id")
     private UUID roomId;
-    private LocalDateTime leftAt;
 }
