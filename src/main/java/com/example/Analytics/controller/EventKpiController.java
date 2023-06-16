@@ -2,15 +2,11 @@ package com.example.Analytics.controller;
 
 import com.example.Analytics.models.*;
 import com.example.Analytics.service.EventKpService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
