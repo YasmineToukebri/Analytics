@@ -133,16 +133,8 @@ public class EventService implements EventKpService {
         this.emitData("findUsernameWithLeastEvents",usernameWithLeastEvents+"");
 
 
-
-
-
-
         long countAll = eventKpiRepository.count();
         this.emitData("addKpi",countAll+"");
-
-
-
-
 
     }
 
@@ -164,8 +156,6 @@ public class EventService implements EventKpService {
 
 
 
-
-
     @Override
     public SseEmitter subscribe() throws IOException {
         SseEmitter sseEmitter = new SseEmitter(600000L);
@@ -176,16 +166,6 @@ public class EventService implements EventKpService {
         this.emitters.add(sseEmitter);
         return sseEmitter;
     }
-
-
-
-
-
-
-
-
-
-
 
 
 
