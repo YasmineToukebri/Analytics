@@ -3,10 +3,7 @@ package com.example.Analytics.service;
 import com.example.Analytics.dto.DataToEmit;
 import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.*;
-import com.example.Analytics.repository.EventKpiRepository;
-import com.example.Analytics.repository.SessionRepository;
-import com.example.Analytics.repository.ViewEventRepository;
-import com.example.Analytics.repository.quizAction;
+import com.example.Analytics.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,9 +20,12 @@ public class EventService implements EventKpService {
     private static List<SseEmitter> emitters = new java.util.ArrayList<>();
 
     private final EventKpiRepository eventKpiRepository;
+
+    private final AbortEventRepository abortEventRepository;
     private final ViewEventRepository viewEventRepository;
     private final quizAction quizzActionRepository;
     private final SessionRepository sessionRepository;
+
 
     @Override
     public SseEmitter subscribe() throws IOException {
@@ -36,6 +36,74 @@ public class EventService implements EventKpService {
         sseEmitter.onCompletion(() -> this.emitters.remove(sseEmitter));
         this.emitters.add(sseEmitter);
         return sseEmitter;
+    }
+    @Override
+    public String getUsernameWithMostEvents() {
+        List<String> findUsernameWithMostEvents= eventKpiRepository.findUsernameWithMostEvents();
+        return findUsernameWithMostEvents.get(0);
+    }
+
+    @Override
+    public String  findUsernameWithLeastEvents() {
+        List<String> usernameWithLeastEvents=eventKpiRepository.findUsernameWithLeastEvents();
+        return usernameWithLeastEvents.get(0);
+    }
+
+    @Override
+    public double calculateAverageEventsPerUser() {
+        return eventKpiRepository.calculateAverageEventsPerUser();
+    }
+
+
+
+    @Override
+    public long countEventQuizzResponses(UUID eventId) {
+        long countAll = quizzActionRepository.countAllByEventId(eventId);
+        this.emitData("quizzAction",countAll+"");
+        return countAll;
+    }
+
+
+    @Override
+    public void abortEvent(AbortEvent abortEvent) {
+        abortEvent.setAbortedAt(LocalDateTime.now());
+         abortEventRepository.save(abortEvent);
+    }
+
+    @Override
+    public void addKpi(EventKpi eventKpi) {
+        eventKpi.setEventId(UUID.randomUUID());
+        EventKpi eventKpi1 = eventKpiRepository.save(eventKpi);
+
+        String usernameWithMostEvents= getUsernameWithMostEvents();
+        this.emitData("findUsernameWithMostEvents",usernameWithMostEvents);
+
+
+        String usernameWithLeastEvents= findUsernameWithLeastEvents();
+        this.emitData("findUsernameWithLeastEvents",usernameWithLeastEvents);
+
+
+        double calculateAverageEventsPerUser= calculateAverageEventsPerUser();
+        this.emitData("findUsernameWithLeastEvents",usernameWithLeastEvents+"");
+
+        long totalEventsThisDay= findTotalByToday();
+        this.emitData("totalEventsThisDay",totalEventsThisDay+"");
+        long totalEventsThisWeek = findTotalByCurrentWeek();
+        this.emitData("totalEventsThisWeek",totalEventsThisWeek+"");
+        long totalEventsThisMonth = findTotalByCurrentMonth();
+        this.emitData("totalEventsThisMonth",totalEventsThisMonth+"");
+
+
+
+
+        long countAll = eventKpiRepository.count();
+        this.emitData("addKpi",countAll+"");
+
+
+        long countEventAborted = abortEventRepository.count();
+        this.emitData("addKpi",countEventAborted+"");
+
+
     }
 
     public void emitData(String action,String data) {
@@ -54,21 +122,10 @@ public class EventService implements EventKpService {
         }
     }
 
-    @Override
-    public void addKpi(EventKpi eventKpi) {
-        eventKpi.setCreatedAt(LocalDateTime.now());
-        EventKpi eventKpi1 = eventKpiRepository.save(eventKpi);
-        long totalEventsThisDay= findTotalByToday();
-        this.emitData("totalEventsThisDay",totalEventsThisDay+"");
-        long totalEventsThisWeek = findTotalByCurrentWeek();
-        this.emitData("totalEventsThisWeek",totalEventsThisWeek+"");
-        long totalEventsThisMonth = findTotalByCurrentMonth();
-        this.emitData("totalEventsThisMonth",totalEventsThisMonth+"");
-        long countAll = eventKpiRepository.count();
-        long countByUsername = eventKpiRepository.countByUserName("ilyes");
-        System.out.println(countByUsername);
-        this.emitData("addKpi",countAll+"");
-    }
+
+
+
+
 
     @Override
     public long viewEvent(UUID viewEvent) {
@@ -122,12 +179,6 @@ public class EventService implements EventKpService {
         return minutes;
     }
 
-    @Override
-    public long countEventQuizzResponses(UUID eventId) {
-        long countAll = quizzActionRepository.countAllByEventId(eventId);
-        this.emitData("quizzAction",countAll+"");
-        return countAll;
-    }
 
     @Override
     public long countQuizzByUser(String userName) {
