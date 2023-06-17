@@ -1,9 +1,11 @@
 package com.example.Analytics.service;
 
 import com.example.Analytics.dto.SessionAction;
+import com.example.Analytics.models.AbortEvent;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
 import com.example.Analytics.models.ViewEvent;
+import com.example.Analytics.repository.EventKpiRepository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -32,4 +34,15 @@ public interface EventKpService {
     long countViewsByUser(String userName);
 
     void persistQuizz(QuizzAction quizzAction);
+
+
+
+    String getUsernameWithMostEvents();
+    String findUsernameWithLeastEvents();
+    double calculateAverageEventsPerUser();
+
+
+    void abortEvent(AbortEvent abortEvent);
+
+
 }

@@ -3,7 +3,7 @@ version: '3'
 services:
   db:
     image: postgres
-    container_name: postgres
+    container_name: postgres-analytics
     ports:
       - "5432:5432"
     networks:
@@ -17,7 +17,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: pgadmin-analytics
     ports:
       - "5050:80"
     networks:

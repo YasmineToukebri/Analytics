@@ -1,6 +1,7 @@
 package com.example.Analytics.controller;
 
 import com.example.Analytics.dto.SessionAction;
+import com.example.Analytics.models.AbortEvent;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
 import com.example.Analytics.models.ViewEvent;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +19,35 @@ import java.util.UUID;
 @RequestMapping("/monitoring")
 public class EventKpiController {
     private EventKpService service;
+
+
+
+    @PostMapping("/abort-event")
+    void abortEvent(@RequestBody AbortEvent abortEvent) {
+        service.abortEvent(abortEvent);
+    }
+
+
+    @GetMapping("/findUsernameWithMostEvents")
+    String findUsernameWithMostEvents(){
+        return service.getUsernameWithMostEvents();
+    }
+
+    @GetMapping("/findUsernameWithLeastEvents")
+    String findUsernameWithLeastEvents(){
+        return service.findUsernameWithLeastEvents();
+    }
+
+
+    @GetMapping("/calculateAverageEventsPerUser")
+    double calculateAverageEventsPerUser(){
+        return service.calculateAverageEventsPerUser();
+    }
+
+
+
+
+
 
     @GetMapping("/subscribe")
     SseEmitter subscribe() throws IOException {
