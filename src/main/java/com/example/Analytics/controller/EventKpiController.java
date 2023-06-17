@@ -1,9 +1,11 @@
 package com.example.Analytics.controller;
 
+import com.example.Analytics.dto.CountEventViews;
 import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
-import com.example.Analytics.models.ViewEvent;
+import com.example.Analytics.models.Session;
+import com.example.Analytics.models.ViewEventAction;
 import com.example.Analytics.service.EventKpService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -29,18 +31,18 @@ public class EventKpiController {
     }
 
     @PostMapping("/view-event")
-    void viewEventKpi(@RequestBody ViewEvent viewEvent) {
-        service.handleViewAction(viewEvent);
+    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) {
+        return service.handleViewAction(viewEventAction);
     }
 
     @PostMapping("/join-room")
-    void joinRoomKpi(@RequestBody SessionAction sessionAction) {
-        service.handleSessionAction(sessionAction);
+    Session joinRoomKpi(@RequestBody SessionAction sessionAction) {
+        return service.handleSessionAction(sessionAction);
     }
 
     @PostMapping("/end-meeting")
-    void endRoomKpi( @RequestBody SessionAction sessionAction) {
-        service.handleClosingSession(sessionAction);
+    Session endRoomKpi( @RequestBody SessionAction sessionAction) {
+        return service.handleClosingSession(sessionAction);
     }
 
     @PostMapping("/send-quiz")
@@ -60,8 +62,8 @@ public class EventKpiController {
     }
 
     @GetMapping("/views-by-user")
-    void countViewsByUser(@RequestParam(name = "username") String userName) {
-        service.countViewsByUser(userName);
+    long countViewsByUser(@RequestParam(name = "username") String userName) {
+        return service.countViewsByUser(userName);
     }
 
     @GetMapping("/views-by-event")
@@ -70,17 +72,69 @@ public class EventKpiController {
     }
 
     @GetMapping("/session-duration")
-    void getSessionDuration(@RequestParam(name = "username") String username) {
-        service.getSessionDuration(username);
+    void getSessionDuration(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID event_Id) {
+        service.getSessionDuration(username, event_Id);
     }
 
     @GetMapping("/participants")
-    void countParticipants(@RequestBody SessionAction sessionAction) {
-        service.countParticipants(sessionAction);
+    long countParticipants() {
+        return service.getParticipantsNumber();
+    }
+
+    @GetMapping("/events-participated")
+    long countEventsParticpatedAt(@RequestParam(name = "username") String uername) {
+        return service.countEventsParticpatedAt(uername);
     }
 
     @GetMapping("/participants-by-room")
-    void countParticipantsByRoomId(@RequestBody SessionAction sessionAction) {
-        service.countParticipantsByRoomId(sessionAction);
+    long countParticipantsByRoomId(@RequestParam(name = "roomId") UUID roomId) {
+       return service.countParticipantsByRoomId(roomId);
     }
+
+    @GetMapping("/max-views")
+    CountEventViews getMaxViews() {
+        return  service.getMaxViews();
+    }
+
+    @GetMapping("/min-views")
+    CountEventViews getMinViews() {
+       return service.getMinViews();
+    }
+
+    @GetMapping("/session-duration-by-room-max")
+    Session getMaxDurationByEventId(@RequestParam(name = "event_Id") UUID event_Id) {
+        return  service.getMaxDurationByRoomId(event_Id);
+    }
+
+    @GetMapping("/session-duration-by-room-min")
+    Session getMinDurationByEventId(@RequestParam(name = "event_Id") UUID event_Id) {
+       return service.getMinDurationByRoomId(event_Id);
+    }
+
+
+    @GetMapping("/session-duration-max")
+    Session getMaxSession() {
+        return service.getMaxSession();
+    }
+
+    @GetMapping("/session-duration-min")
+    Session getMinSession() {
+        return service.getMinSession();
+    }
+
+    @GetMapping("/session-duration-by-user")
+    String getSessionDurationByUser(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID event_Id) {
+    return service.getSessionDuration(username,event_Id);
+    }
+
+    @GetMapping("/maximal-participants")
+    long getMaximalParticipants() {
+        return service.MaximalParticipation();
+    }
+
+    @GetMapping("/minimal-participants")
+    long getMinimalParticipants() {
+        return service.MinimalParticipation();
+    }
+
 }

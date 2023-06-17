@@ -1,7 +1,9 @@
 package com.example.Analytics.service;
 
+import com.example.Analytics.dto.CountEventViews;
 import com.example.Analytics.dto.DataToEmit;
 import com.example.Analytics.dto.SessionAction;
+import com.example.Analytics.models.ViewEventAction;
 import com.example.Analytics.models.*;
 import com.example.Analytics.repository.EventKpiRepository;
 import com.example.Analytics.repository.SessionRepository;
@@ -12,20 +14,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
 
 @RequiredArgsConstructor
 @Service
 public class EventService implements EventKpService {
 
     private static List<SseEmitter> emitters = new java.util.ArrayList<>();
-
     private final EventKpiRepository eventKpiRepository;
     private final ViewEventRepository viewEventRepository;
     private final quizAction quizzActionRepository;
     private final SessionRepository sessionRepository;
+
+
 
     @Override
     public SseEmitter subscribe() throws IOException {
@@ -57,79 +62,78 @@ public class EventService implements EventKpService {
     @Override
     public void addKpi(EventKpi eventKpi) {
         eventKpi.setEventId(UUID.randomUUID());
-        EventKpi eventKpi1 = eventKpiRepository.save(eventKpi);
+        eventKpiRepository.save(eventKpi);
         long countAll = eventKpiRepository.count();
-        long countByUsername = eventKpiRepository.countByUserName("ilyes");
-        System.out.println(countByUsername);
+        long countByUsername = eventKpiRepository.countByUserName(eventKpi.getUserName());
         this.emitData("addKpi",countAll+"");
+        this.emitData("addKpiByUser",countByUsername+"");
     }
 
     @Override
     public long viewEvent(UUID viewEvent) {
-        long countAll = viewEventRepository.countAllByEventId(viewEvent);
-        return countAll;
+        return  viewEventRepository.countAllByEventId(viewEvent);
     }
 
     @Override
-    public void handleViewAction(ViewEvent viewEvent){
-        viewEvent.setSeenAt(LocalDateTime.now());
-        viewEventRepository.save(viewEvent);
-        this.emitData("Views per user",this.countViewsByUser(viewEvent.getUserName()) + "");
-        this.emitData("Views per event",this.viewEvent(viewEvent.getEventId()) + "");
+    public ViewEventAction handleViewAction(ViewEventAction viewEventAction){
+        viewEventAction.setSeenAt(LocalDateTime.now());
+        ViewEventAction action = viewEventRepository.save(viewEventAction);
+        this.emitData("Views per user",this.countViewsByUser(viewEventAction.getUserName()) + "");
+        this.emitData("Views per event",this.viewEvent(viewEventAction.getEventId()) + "");
+        return action;
     }
 
     @Override
-    public void handleSessionAction(SessionAction sessionAction) {
-        Session session = Session.builder()
-                .id(UUID.randomUUID())
-                .userName(sessionAction.getUserName())
-                .roomId(UUID.randomUUID())
-                .enterActionAt(LocalDateTime.now())
-                .build();
-        if(sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId()).equals(null)){
+    public Session handleSessionAction(SessionAction sessionAction) {
+        Session existingSession = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId());
+        if(existingSession==null){
+            Session session = Session.builder()
+                    .id(UUID.randomUUID())
+                    .userName(sessionAction.getUserName())
+                    .roomId(sessionAction.getRoomId())
+                    .enterActionAt(LocalDateTime.now())
+                    .build();
+            session.setDuration(Duration.ZERO);
             sessionRepository.save(session);
+            return session;
         }
         else {
-            Session session1 = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId());
-            session1.setEnterActionAt(LocalDateTime.now());
-            sessionRepository.save(session1);
+            existingSession.setEnterActionAt(LocalDateTime.now());
+            sessionRepository.save(existingSession);
+            return existingSession;
         }
 
     }
 
     @Override
-    public void handleClosingSession(SessionAction sessionAction) {
-        UUID sessionId = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId()).getId();
-        Session session = sessionRepository.findById(sessionId).get();
+    public Session handleClosingSession(SessionAction sessionAction) {
+        Session session = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId());
         session.setLeaveActionAt(LocalDateTime.now());
+        session.setDuration(Duration.between(session.getEnterActionAt(),session.getLeaveActionAt()));
         sessionRepository.save(session);
-
+        this.emitData("session duration",session.getDuration().toHours() + "" + session.getDuration().toMinutes() + "" + session.getDuration().toSeconds() + "");
+        return session;
     }
 
     @Override
-    public void getSessionDuration(String username){
-        Session session = sessionRepository.findAllByUserName(username);
-        long minutes = session.getLeaveActionAt().getMinute() - session.getEnterActionAt().getMinute();
-        long hours = session.getLeaveActionAt().getHour() - session.getEnterActionAt().getHour();
-        this.emitData("sessionAction",hours+"h"+minutes+"m");
+    public String getSessionDuration(String username, UUID roomId){
+        Session session = sessionRepository.findAllByUserNameAndRoomId(username,roomId);
+        return session.getDuration().toHours() +  "h"  +  session.getDuration().toMinutes() + "M" + session.getDuration().toSeconds() + "s";
     }
 
     @Override
     public long countEventQuizzResponses(UUID eventId) {
-        long countAll = quizzActionRepository.countAllByEventId(eventId);
-        return countAll;
+        return quizzActionRepository.countAllByEventId(eventId);
     }
 
     @Override
     public long countQuizzByUser(String userName) {
-        long countAll = quizzActionRepository.countAllByUserName(userName);
-        return countAll;
+        return quizzActionRepository.countAllByUserName(userName);
     }
 
     @Override
     public long countViewsByUser(String userName) {
-        long countAll = viewEventRepository.countAllByUserName(userName);
-        return countAll;
+          return  viewEventRepository.countAllByUserName(userName);
     }
 
     @Override
@@ -141,16 +145,77 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public void countParticipants(SessionAction sessionAction) {
-        long countAll = sessionRepository.countAllByUsername(sessionAction.getUserName());
+    public long countEventsParticpatedAt(String uername) {
+        long countAll = sessionRepository.countAllByUserName(uername);
         this.emitData("participants count",countAll+"");
+        return countAll;
     }
 
     @Override
-    public void countParticipantsByRoomId(SessionAction sessionAction) {
-        long countAll = sessionRepository.countAllByRoomId(sessionAction.getRoomId());
-        this.emitData("participants count",countAll+"");
+    public long getParticipantsNumber(){
+        long totalParticipants = sessionRepository.count();
+        this.emitData("participants count",totalParticipants+"");
+        return totalParticipants;
     }
+
+    @Override
+    public long countParticipantsByRoomId(UUID roomId) {
+        long countAll = sessionRepository.countAllByRoomId(roomId);
+        this.emitData("participants count",countAll+"");
+        return countAll;
+    }
+
+
+    @Override
+    public CountEventViews getMaxViews() {
+        List<CountEventViews> views = viewEventRepository.countMaxViews();
+        return views.get(0);
+    }
+
+    @Override
+    public CountEventViews getMinViews() {
+        List<CountEventViews> views = viewEventRepository.countMinViews();
+        return views.get(0);
+    }
+
+    @Override
+    public Session getMaxDurationByRoomId(UUID roomId) {
+        List<Session> sessions =  sessionRepository.getMaxDurationByRoomId(roomId);
+        return sessions.get(0);
+    }
+
+    @Override
+    public Session getMinDurationByRoomId(UUID roomId) {
+        List<Session> sessions =  sessionRepository.getMinDurationByRoomId(roomId);
+        return sessions.get(0);
+    }
+
+    @Override
+    public Session getMaxSession() {
+        List<Session> sessions = sessionRepository.getMaxDuration();
+        return sessions.get(0);
+    }
+
+    @Override
+    public Session getMinSession() {
+        List<Session> sessions =  sessionRepository.getMinDuration();
+        return sessions.get(0);
+    }
+
+
+    @Override
+    public long MaximalParticipation(){
+        List<Long> participations = sessionRepository.getMaximalParticipation();
+        return participations.get(0);
+    }
+
+    @Override
+    public long MinimalParticipation(){
+        List<Long> participations = sessionRepository.getMinimalParticipation();
+        return participations.get(0);
+    }
+
+
 }
 
 

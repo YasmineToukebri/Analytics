@@ -12,13 +12,14 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 @Entity
-public class ViewEvent {
+@Table(name = "view_event")
+public class ViewEventAction  {
     @Id
     @GeneratedValue( strategy= GenerationType.AUTO)
     private UUID id;
     private String userName;
+    @Column(name = "event_id")
     private UUID eventId;
     private LocalDateTime seenAt;
 }

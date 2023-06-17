@@ -1,9 +1,11 @@
 package com.example.Analytics.service;
 
+import com.example.Analytics.dto.CountEventViews;
 import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
-import com.example.Analytics.models.ViewEvent;
+import com.example.Analytics.models.Session;
+import com.example.Analytics.models.ViewEventAction;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -17,13 +19,13 @@ public interface EventKpService {
     SseEmitter subscribe() throws IOException;
     void emitData(String action,String data);
 
-    void handleViewAction(ViewEvent viewEvent);
+    ViewEventAction handleViewAction(ViewEventAction viewEventAction);
 
-    void handleSessionAction(SessionAction sessionAction);
+    Session handleSessionAction(SessionAction sessionAction);
 
-    void handleClosingSession(SessionAction sessionAction);
+    Session handleClosingSession(SessionAction sessionAction);
 
-    void getSessionDuration(String username);
+    String getSessionDuration(String username, UUID roomId);
 
     long countEventQuizzResponses(UUID eventId);
 
@@ -33,7 +35,27 @@ public interface EventKpService {
 
     void persistQuizz(QuizzAction quizzAction);
 
-    void countParticipants(SessionAction sessionAction);
 
-    void countParticipantsByRoomId(SessionAction sessionAction);
+    long countEventsParticpatedAt(String uername);
+
+    long countParticipantsByRoomId(UUID roomId);
+
+
+    CountEventViews getMaxViews();
+
+    CountEventViews getMinViews();
+
+    Session getMaxDurationByRoomId(UUID roomId);
+
+    Session getMinDurationByRoomId(UUID roomId);
+
+    Session getMaxSession();
+
+    Session getMinSession();
+
+    long getParticipantsNumber();
+
+    long MaximalParticipation();
+
+    long MinimalParticipation();
 }
