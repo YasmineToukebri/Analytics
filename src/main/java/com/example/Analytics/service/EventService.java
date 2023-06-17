@@ -66,8 +66,8 @@ public class EventService implements EventKpService {
         String findUserWithMostAbortedEvents= findUserWithMostAbortedEvents();
         this.emitData("findUserWithMostAbortedEvents",findUserWithMostAbortedEvents);
 
-        long countEventAborted = abortEventRepository.count();
-        this.emitData("abortEvent",countEventAborted+"");
+        long countEventsAborted = abortEventRepository.count();
+        this.emitData("abortEvent",countEventsAborted+"");
 
 
         long countTotalAbortedEventToday = abortEventRepository.findTotalAbortedEventToday();

@@ -5,6 +5,7 @@ import com.example.Analytics.models.AbortEvent;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
 import com.example.Analytics.models.ViewEvent;
+import com.example.Analytics.repository.AbortEventRepository;
 import com.example.Analytics.service.EventKpService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +21,18 @@ import java.util.UUID;
 public class EventKpiController {
     private EventKpService service;
 
+    private AbortEventRepository abortEventRepository;
+
 
 
     @PostMapping("/abort-event")
     void abortEvent(@RequestBody AbortEvent abortEvent) {
         service.abortEvent(abortEvent);
+    }
+
+    @GetMapping("/countEventsAborted")
+    long countEventsAborted(){
+         return abortEventRepository.count();
     }
 
     @GetMapping("/findUserWithLeastAbortedEvents")

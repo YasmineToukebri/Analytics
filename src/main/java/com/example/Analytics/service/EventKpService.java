@@ -44,8 +44,8 @@ public interface EventKpService {
 
 
     void abortEvent(AbortEvent abortEvent);
-    String findUserWithLeastAbortedEvents();
 
+    String findUserWithLeastAbortedEvents();
     String findUserWithMostAbortedEvents();
     Long findTotalAbortedEventToday();
     Long findTotalAbortedEventByCurrentWeek();
