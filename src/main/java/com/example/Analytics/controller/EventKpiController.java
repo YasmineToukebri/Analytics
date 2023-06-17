@@ -77,5 +77,28 @@ public class EventKpiController {
     long getSessionDuration(@RequestParam(name = "username") String username) {
       return   service.getSessionDuration(username);
     }
-
+    @GetMapping("/total-events-today")
+    long getTotalEventsToday() {
+      return service.findTotalByToday();
+    }
+    @GetMapping("/total-events-this-week")
+    long getTotalEventsThisWeek() {
+      return service.findTotalByCurrentWeek();
+    }
+    @GetMapping("/total-events-this-month")
+    long getTotalEventsThisMonth() {
+            return service.findTotalByCurrentMonth();
+    }
+    @GetMapping("/total-events-today/{userName}")
+    long getTotalEventsTodayByUsername(@PathVariable String userName) {
+      return service.findTotalByTodayAndUserName(userName);
+    }
+    @GetMapping("/total-events-this-week/{userName}")
+    long getTotalEventsThisWeekByUsername(@PathVariable String userName) {
+      return service.findTotalByCurrentWeekAndUserName(userName);
+    }
+    @GetMapping("/total-events-this-month/{userName}")
+    long getTotalEventsThisMonthByUsername(@PathVariable String userName) {
+            return service.findTotalByCurrentMonthAndUserName(userName);
+    }
 }

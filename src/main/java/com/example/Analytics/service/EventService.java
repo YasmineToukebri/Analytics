@@ -56,8 +56,14 @@ public class EventService implements EventKpService {
 
     @Override
     public void addKpi(EventKpi eventKpi) {
-        eventKpi.setEventId(UUID.randomUUID());
+        eventKpi.setCreatedAt(LocalDateTime.now());
         EventKpi eventKpi1 = eventKpiRepository.save(eventKpi);
+        long totalEventsThisDay= findTotalByToday();
+        this.emitData("totalEventsThisDay",totalEventsThisDay+"");
+        long totalEventsThisWeek = findTotalByCurrentWeek();
+        this.emitData("totalEventsThisWeek",totalEventsThisWeek+"");
+        long totalEventsThisMonth = findTotalByCurrentMonth();
+        this.emitData("totalEventsThisMonth",totalEventsThisMonth+"");
         long countAll = eventKpiRepository.count();
         long countByUsername = eventKpiRepository.countByUserName("ilyes");
         System.out.println(countByUsername);
@@ -144,6 +150,36 @@ public class EventService implements EventKpService {
         this.countEventQuizzResponses(quizzAction.getEventId());
         this.emitData(  "quizzAction",this.countQuizzByUser(quizzAction.getUserName())+"");
 
+    }
+
+    @Override
+    public Long findTotalByToday() {
+        return eventKpiRepository.findTotalByToday();
+    }
+
+    @Override
+    public Long findTotalByCurrentWeek() {
+        return eventKpiRepository.findTotalByCurrentWeek();
+    }
+
+    @Override
+    public Long findTotalByCurrentMonth() {
+        return eventKpiRepository.findTotalByCurrentMonth();
+    }
+
+    @Override
+    public Long findTotalByTodayAndUserName(String userName) {
+        return eventKpiRepository.findTotalByUsernameToday(userName);
+    }
+
+    @Override
+    public Long findTotalByCurrentWeekAndUserName(String userName) {
+        return eventKpiRepository.findTotalByUserNameAndCurrentWeek(userName);
+    }
+
+    @Override
+    public Long findTotalByCurrentMonthAndUserName(String userName) {
+        return eventKpiRepository.findTotalByUserNameAndCurrentMonth(userName);
     }
 }
 

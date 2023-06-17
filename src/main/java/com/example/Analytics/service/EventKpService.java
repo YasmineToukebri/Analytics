@@ -4,6 +4,7 @@ import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
 import com.example.Analytics.models.ViewEvent;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -32,4 +33,15 @@ public interface EventKpService {
     long countViewsByUser(String userName);
 
     void persistQuizz(QuizzAction quizzAction);
+
+    Long findTotalByToday();
+
+    Long findTotalByCurrentWeek();
+
+    Long findTotalByCurrentMonth();
+    Long findTotalByTodayAndUserName(String userName);
+
+    Long findTotalByCurrentWeekAndUserName(String userName);
+
+    Long findTotalByCurrentMonthAndUserName(String userName);
 }
