@@ -74,4 +74,13 @@ public class EventKpiController {
         service.getSessionDuration(username);
     }
 
+    @GetMapping("/participants")
+    void countParticipants(@RequestBody SessionAction sessionAction) {
+        service.countParticipants(sessionAction);
+    }
+
+    @GetMapping("/participants-by-room")
+    void countParticipantsByRoomId(@RequestBody SessionAction sessionAction) {
+        service.countParticipantsByRoomId(sessionAction);
+    }
 }

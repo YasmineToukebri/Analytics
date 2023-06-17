@@ -67,7 +67,6 @@ public class EventService implements EventKpService {
     @Override
     public long viewEvent(UUID viewEvent) {
         long countAll = viewEventRepository.countAllByEventId(viewEvent);
-        this.emitData("viewEvent",countAll+"");
         return countAll;
     }
 
@@ -75,8 +74,8 @@ public class EventService implements EventKpService {
     public void handleViewAction(ViewEvent viewEvent){
         viewEvent.setSeenAt(LocalDateTime.now());
         viewEventRepository.save(viewEvent);
-        this.emitData("viewEvent",this.countViewsByUser(viewEvent.getUserName()) + "");
-        this.emitData("viewEvent",this.viewEvent(viewEvent.getEventId()) + "");
+        this.emitData("Views per user",this.countViewsByUser(viewEvent.getUserName()) + "");
+        this.emitData("Views per event",this.viewEvent(viewEvent.getEventId()) + "");
     }
 
     @Override
@@ -87,7 +86,7 @@ public class EventService implements EventKpService {
                 .roomId(UUID.randomUUID())
                 .enterActionAt(LocalDateTime.now())
                 .build();
-        if(sessionRepository.findAllByUserName(sessionAction.getUserName()) == null && sessionRepository.findAllByRoomId(sessionAction.getRoomId()) == null){
+        if(sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId()).equals(null)){
             sessionRepository.save(session);
         }
         else {
@@ -118,21 +117,18 @@ public class EventService implements EventKpService {
     @Override
     public long countEventQuizzResponses(UUID eventId) {
         long countAll = quizzActionRepository.countAllByEventId(eventId);
-        this.emitData("quizzAction",countAll+"");
         return countAll;
     }
 
     @Override
     public long countQuizzByUser(String userName) {
         long countAll = quizzActionRepository.countAllByUserName(userName);
-        this.emitData("quizzAction",countAll+"");
         return countAll;
     }
 
     @Override
     public long countViewsByUser(String userName) {
         long countAll = viewEventRepository.countAllByUserName(userName);
-        this.emitData("count By User",countAll+"");
         return countAll;
     }
 
@@ -140,9 +136,20 @@ public class EventService implements EventKpService {
     public void persistQuizz(QuizzAction quizzAction) {
         quizzAction.setPassedAt(LocalDateTime.now());
         quizzActionRepository.save(quizzAction);
-        this.countEventQuizzResponses(quizzAction.getEventId());
-        this.emitData(  "quizzAction",this.countQuizzByUser(quizzAction.getUserName())+"");
+        this.emitData("quizz count per event",this.countEventQuizzResponses(quizzAction.getEventId())+"");
+        this.emitData(  "quizz count per user",this.countQuizzByUser(quizzAction.getUserName())+"");
+    }
 
+    @Override
+    public void countParticipants(SessionAction sessionAction) {
+        long countAll = sessionRepository.countAllByUsername(sessionAction.getUserName());
+        this.emitData("participants count",countAll+"");
+    }
+
+    @Override
+    public void countParticipantsByRoomId(SessionAction sessionAction) {
+        long countAll = sessionRepository.countAllByRoomId(sessionAction.getRoomId());
+        this.emitData("participants count",countAll+"");
     }
 }
 

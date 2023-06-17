@@ -13,4 +13,8 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
     Session findAllByRoomId(UUID roomId);
 
     Session findAllByUserNameAndRoomId(String userName, UUID roomId);
+
+    long countAllByUsername(String username);
+
+    long countAllByRoomId(UUID roomId);
 }

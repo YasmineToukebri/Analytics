@@ -32,4 +32,8 @@ public interface EventKpService {
     long countViewsByUser(String userName);
 
     void persistQuizz(QuizzAction quizzAction);
+
+    void countParticipants(SessionAction sessionAction);
+
+    void countParticipantsByRoomId(SessionAction sessionAction);
 }
