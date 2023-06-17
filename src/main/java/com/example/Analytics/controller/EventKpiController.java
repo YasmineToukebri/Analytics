@@ -5,6 +5,7 @@ import com.example.Analytics.models.AbortEvent;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
 import com.example.Analytics.models.ViewEvent;
+import com.example.Analytics.repository.AbortEventRepository;
 import com.example.Analytics.service.EventKpService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +21,55 @@ import java.util.UUID;
 public class EventKpiController {
     private EventKpService service;
 
+    private AbortEventRepository abortEventRepository;
+
 
 
     @PostMapping("/abort-event")
     void abortEvent(@RequestBody AbortEvent abortEvent) {
         service.abortEvent(abortEvent);
     }
+
+    @GetMapping("/countEventsAborted")
+    long countEventsAborted(){
+         return abortEventRepository.count();
+    }
+
+    @GetMapping("/findUserWithLeastAbortedEvents")
+    String findUserWithLeastAbortedEvents(){
+        return service.findUserWithLeastAbortedEvents();
+    }
+
+    @GetMapping("/findUserWithMostAbortedEvents")
+    String findUserWithMostAbortedEvents(){
+        return service.findUserWithMostAbortedEvents();
+    }
+
+
+
+    @GetMapping("/findTotalAbortedEventToday")
+    long findTotalAbortedEventToday(){
+        return service.findTotalAbortedEventToday();
+    }
+
+    @GetMapping("/findTotalAbortedEventByCurrentWeek")
+    long findTotalAbortedEventByCurrentWeek(){
+        return service.findTotalAbortedEventByCurrentWeek();
+    }
+
+    @GetMapping("/findTotalAbortedEventByCurrentMonth")
+    long findTotalAbortedEventByCurrentMonth(){
+        return service.findTotalAbortedEventByCurrentMonth();
+    }
+
+    @GetMapping("/calculateAverageAbortedEventsPerUser")
+    double calculateAverageAbortedEventsPerUser(){
+        return service.calculateAverageAbortedEventsPerUser();
+    }
+
+
+
+
 
 
     @GetMapping("/findUsernameWithMostEvents")

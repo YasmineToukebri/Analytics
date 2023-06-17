@@ -51,6 +51,14 @@ public interface EventKpService {
     Long findTotalByCurrentMonth();
 
     Long findTotalByTodayAndUserName(String userName);
+    String findUserWithLeastAbortedEvents();
+    String findUserWithMostAbortedEvents();
+    Long findTotalAbortedEventToday();
+    Long findTotalAbortedEventByCurrentWeek();
+    Long findTotalAbortedEventByCurrentMonth();
+    double calculateAverageAbortedEventsPerUser();
+
+
 
     Long findTotalByCurrentWeekAndUserName(String userName);
 
