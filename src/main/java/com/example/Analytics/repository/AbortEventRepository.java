@@ -16,7 +16,6 @@ public interface AbortEventRepository extends JpaRepository<AbortEvent, UUID> {
     @Query("SELECT a.userName, COUNT(a) FROM AbortEvent a GROUP BY a.userName ORDER BY COUNT(a) DESC")
     List<String> findUserWithMostAbortedEvents();
 
-
     @Query("SELECT COUNT(e) FROM AbortEvent e WHERE FUNCTION('DATE', e.abortedAt) = FUNCTION('CURRENT_DATE')")
     Long findTotalAbortedEventToday();
 

@@ -57,6 +57,7 @@ public class EventService implements EventKpService {
 
     @Override
     public void abortEvent(AbortEvent abortEvent) {
+        abortEvent.setAbortedAt(LocalDateTime.now());
          abortEventRepository.save(abortEvent);
     }
 
