@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -21,4 +22,7 @@ public class AbortEvent {
     private UUID id;
     private String userName;
     private UUID eventId;
+
+    private LocalDateTime abortedAt;
+
 }

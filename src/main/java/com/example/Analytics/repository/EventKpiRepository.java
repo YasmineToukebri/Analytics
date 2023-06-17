@@ -21,4 +21,5 @@ public interface EventKpiRepository extends JpaRepository<EventKpi, UUID> {
     double calculateAverageEventsPerUser();
 
 
+
 }
