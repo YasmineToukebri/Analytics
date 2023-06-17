@@ -4,6 +4,7 @@ import com.example.Analytics.models.*;
 import com.example.Analytics.service.EventKpService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -20,6 +21,19 @@ public class EventKpiController {
 
     @GetMapping("/subscribe")
     SseEmitter subscribe() throws IOException {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.registerModule(new JavaTimeModule());
+////or
+//        JsonMapper jsonMapper = new JsonMapper();
+//        jsonMapper.registerModule(new JavaTimeModule());
+//        ObjectWriter ow = new ObjectMapper().registerModule(new JavaTimeModule()).writer().withDefaultPrettyPrinter();
+//        String json = ow.writeValueAsString(JoinRoom.builder()
+//                .id(UUID.randomUUID())
+//                .joinedAt(LocalDateTime.now())
+//                .userName("azdaeae")
+//                .roomId(UUID.randomUUID())
+//                .build());
+//        System.out.println(json);
         return service.subscribe();
     }
 

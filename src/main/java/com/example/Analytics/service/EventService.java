@@ -1,6 +1,7 @@
 package com.example.Analytics.service;
 
 import com.example.Analytics.dto.DataToEmit;
+import com.example.Analytics.dto.MinMaxViewedEventDto;
 import com.example.Analytics.models.*;
 import com.example.Analytics.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class EventService implements EventKpService {
         return sseEmitter;
     }
 
-    public void emitData(String action,String data) {
+    public void emitData(String action, String data) {
         DataToEmit dataToEmit = DataToEmit.builder()
                 .action(action)
                 .data(data)
@@ -72,7 +73,8 @@ public class EventService implements EventKpService {
 
     @Override
     public void viewEvent(ViewEvent viewEvent) {
-        viewEvent=  viewEventRepository.save(viewEvent);
+        viewEvent = viewEventRepository.save(viewEvent);
+        getMinEventViews();
     }
 
     @Override
@@ -98,6 +100,17 @@ public class EventService implements EventKpService {
         passQuiz = passQuizRepository.save(passQuiz);
 
     }
+
+    public MinMaxViewedEventDto getMinEventViews() {
+//        System.out.println(viewEventRepository.findMinEventIdOccurrence());
+        System.out.println(viewEventRepository.findViewEventWithMinOccurrence().getEventId());
+
+        return MinMaxViewedEventDto.builder()
+//                .eventId(viewEventRepository.findViewEventWithMinOccurrence().getEventId())
+//                .numberOfViews(viewEventRepository.findMinEventIdOccurrence())
+                .build();
+    }
+
 }
 
 

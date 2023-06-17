@@ -14,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 
 @Entity
+@Table(name = "views")
 public class ViewEvent {
     @Id
     @GeneratedValue( strategy= GenerationType.AUTO)
