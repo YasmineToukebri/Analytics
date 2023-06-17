@@ -9,6 +9,7 @@ import com.example.Analytics.repository.EventKpiRepository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -43,6 +44,14 @@ public interface EventKpService {
 
 
     void abortEvent(AbortEvent abortEvent);
+    String findUserWithLeastAbortedEvents();
+
+    String findUserWithMostAbortedEvents();
+    Long findTotalAbortedEventToday();
+    Long findTotalAbortedEventByCurrentWeek();
+    Long findTotalAbortedEventByCurrentMonth();
+    double calculateAverageAbortedEventsPerUser();
+
 
 
 }

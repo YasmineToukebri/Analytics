@@ -59,6 +59,61 @@ public class EventService implements EventKpService {
     public void abortEvent(AbortEvent abortEvent) {
         abortEvent.setAbortedAt(LocalDateTime.now());
          abortEventRepository.save(abortEvent);
+
+        String findUserWithLeastAbortedEvents= findUserWithLeastAbortedEvents();
+        this.emitData("findUserWithLeastAbortedEvents",findUserWithLeastAbortedEvents);
+
+        String findUserWithMostAbortedEvents= findUserWithMostAbortedEvents();
+        this.emitData("findUserWithMostAbortedEvents",findUserWithMostAbortedEvents);
+
+        long countEventAborted = abortEventRepository.count();
+        this.emitData("abortEvent",countEventAborted+"");
+
+
+        long countTotalAbortedEventToday = abortEventRepository.findTotalAbortedEventToday();
+        this.emitData("findTotalAbortedEventToday",countTotalAbortedEventToday+"");
+
+
+        long countTotalAbortedEventByCurrentWeek = abortEventRepository.findTotalAbortedEventByCurrentWeek();
+        this.emitData("findTotalAbortedEventByCurrentWeek",countTotalAbortedEventByCurrentWeek+"");
+
+        long countTotalAbortedEventByCurrentMonth = abortEventRepository.findTotalAbortedEventByCurrentMonth();
+        this.emitData("findTotalAbortedEventByCurrentMonth",countTotalAbortedEventByCurrentMonth+"");
+
+        double calculateAverageAbortedEventsPerUser = abortEventRepository.calculateAverageAbortedEventsPerUser();
+        this.emitData("calculateAverageAbortedEventsPerUser",calculateAverageAbortedEventsPerUser+"");
+    }
+
+    @Override
+    public String findUserWithLeastAbortedEvents() {
+        List<String> findUserWithLeastAbortedEvents=abortEventRepository.findUserWithLeastAbortedEvents();
+        return findUserWithLeastAbortedEvents.get(0);
+    }
+
+    @Override
+    public String findUserWithMostAbortedEvents() {
+        List<String> findUserWithMostAbortedEvents=abortEventRepository.findUserWithMostAbortedEvents();
+        return findUserWithMostAbortedEvents.get(0);
+    }
+
+    @Override
+    public Long findTotalAbortedEventToday() {
+        return abortEventRepository.findTotalAbortedEventToday();
+    }
+
+    @Override
+    public Long findTotalAbortedEventByCurrentWeek() {
+        return abortEventRepository.findTotalAbortedEventByCurrentWeek();
+    }
+
+    @Override
+    public Long findTotalAbortedEventByCurrentMonth() {
+        return abortEventRepository.findTotalAbortedEventByCurrentMonth();
+    }
+
+    @Override
+    public double calculateAverageAbortedEventsPerUser() {
+        return abortEventRepository.calculateAverageAbortedEventsPerUser();
     }
 
     @Override
@@ -81,12 +136,12 @@ public class EventService implements EventKpService {
 
 
 
+
         long countAll = eventKpiRepository.count();
         this.emitData("addKpi",countAll+"");
 
 
-        long countEventAborted = abortEventRepository.count();
-        this.emitData("addKpi",countEventAborted+"");
+
 
 
     }

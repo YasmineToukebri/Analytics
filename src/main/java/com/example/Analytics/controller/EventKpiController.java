@@ -27,6 +27,42 @@ public class EventKpiController {
         service.abortEvent(abortEvent);
     }
 
+    @GetMapping("/findUserWithLeastAbortedEvents")
+    String findUserWithLeastAbortedEvents(){
+        return service.findUserWithLeastAbortedEvents();
+    }
+
+    @GetMapping("/findUserWithMostAbortedEvents")
+    String findUserWithMostAbortedEvents(){
+        return service.findUserWithMostAbortedEvents();
+    }
+
+
+
+    @GetMapping("/findTotalAbortedEventToday")
+    long findTotalAbortedEventToday(){
+        return service.findTotalAbortedEventToday();
+    }
+
+    @GetMapping("/findTotalAbortedEventByCurrentWeek")
+    long findTotalAbortedEventByCurrentWeek(){
+        return service.findTotalAbortedEventByCurrentWeek();
+    }
+
+    @GetMapping("/findTotalAbortedEventByCurrentMonth")
+    long findTotalAbortedEventByCurrentMonth(){
+        return service.findTotalAbortedEventByCurrentMonth();
+    }
+
+    @GetMapping("/calculateAverageAbortedEventsPerUser")
+    double calculateAverageAbortedEventsPerUser(){
+        return service.calculateAverageAbortedEventsPerUser();
+    }
+
+
+
+
+
 
     @GetMapping("/findUsernameWithMostEvents")
     String findUsernameWithMostEvents(){
