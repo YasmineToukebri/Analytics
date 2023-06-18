@@ -101,8 +101,8 @@ public class EventService implements EventKpService {
                     .build();
             session.setDuration(Duration.ZERO);
             sessionRepository.save(session);
-            this.emitData("Maximal participation" , this.MaximalParticipation() + "");
-            this.emitData("Minimal participation" , this.MinimalParticipation() + "");
+            this.emitData("Maximal participation" , this.maximalParticipation() + "");
+            this.emitData("Minimal participation" , this.minimalParticipation() + "");
             return session;
         }
         existingSession.setEnterActionAt(LocalDateTime.now());

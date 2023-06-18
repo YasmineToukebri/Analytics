@@ -7,7 +7,7 @@ import com.example.analytics.models.QuizzAction;
 import com.example.analytics.models.Session;
 import com.example.analytics.models.ViewEventAction;
 import com.example.analytics.service.EventKpService;
-import com.example.Analytics.dto.Participation;
+import com.example.analytics.dto.Participation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
