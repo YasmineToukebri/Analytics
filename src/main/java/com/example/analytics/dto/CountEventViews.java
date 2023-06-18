@@ -1,4 +1,4 @@
-package com.example.Analytics.dto;
+package com.example.analytics.dto;
 
 import java.util.UUID;
 

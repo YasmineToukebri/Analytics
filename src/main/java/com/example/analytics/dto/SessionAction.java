@@ -1,4 +1,4 @@
-package com.example.Analytics.dto;
+package com.example.analytics.dto;
 
 
 import lombok.AllArgsConstructor;
@@ -13,11 +13,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
-@Table(name = "session_action")
+
 public class SessionAction {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     @Column(name = "user_name")
     private String userName;

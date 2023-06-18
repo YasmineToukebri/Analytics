@@ -1,7 +1,7 @@
-package com.example.Analytics.repository;
+package com.example.analytics.repository;
 
-import com.example.Analytics.dto.CountEventViews;
-import com.example.Analytics.models.ViewEventAction;
+import com.example.analytics.dto.CountEventViews;
+import com.example.analytics.models.ViewEventAction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

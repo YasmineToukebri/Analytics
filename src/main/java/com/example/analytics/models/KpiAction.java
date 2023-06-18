@@ -1,4 +1,4 @@
-package com.example.Analytics.models;
+package com.example.analytics.models;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;

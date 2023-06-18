@@ -1,14 +1,16 @@
-package com.example.Analytics.service;
+package com.example.analytics.service;
 
-import com.example.Analytics.dto.CountEventViews;
-import com.example.Analytics.dto.DataToEmit;
-import com.example.Analytics.dto.SessionAction;
-import com.example.Analytics.models.ViewEventAction;
-import com.example.Analytics.models.*;
-import com.example.Analytics.repository.EventKpiRepository;
-import com.example.Analytics.repository.SessionRepository;
-import com.example.Analytics.repository.ViewEventRepository;
-import com.example.Analytics.repository.quizAction;
+import com.example.analytics.dto.CountEventViews;
+import com.example.analytics.dto.DataToEmit;
+import com.example.analytics.dto.SessionAction;
+import com.example.analytics.models.EventKpi;
+import com.example.analytics.models.Session;
+import com.example.analytics.models.ViewEventAction;
+import com.example.analytics.repository.EventKpiRepository;
+import com.example.analytics.repository.SessionRepository;
+import com.example.analytics.repository.ViewEventRepository;
+import com.example.analytics.repository.QuizAction;
+import com.example.analytics.models.QuizzAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -24,10 +26,11 @@ import java.util.UUID;
 @Service
 public class EventService implements EventKpService {
 
-    private static List<SseEmitter> emitters = new java.util.ArrayList<>();
+    private static final List<SseEmitter> emitters = new java.util.ArrayList<>();
+    private static final String PARTICIPANT_COUNT = "participants count";
     private final EventKpiRepository eventKpiRepository;
     private final ViewEventRepository viewEventRepository;
-    private final quizAction quizzActionRepository;
+    private final QuizAction quizzActionRepository;
     private final SessionRepository sessionRepository;
 
 
@@ -38,8 +41,8 @@ public class EventService implements EventKpService {
         sseEmitter.send(SseEmitter.event()
                 .name("message")
                 .data("connexion"));
-        sseEmitter.onCompletion(() -> this.emitters.remove(sseEmitter));
-        this.emitters.add(sseEmitter);
+        sseEmitter.onCompletion(() -> emitters.remove(sseEmitter));
+        emitters.add(sseEmitter);
         return sseEmitter;
     }
 
@@ -48,7 +51,7 @@ public class EventService implements EventKpService {
                 .action(action)
                 .data(data)
                 .build();
-        for (SseEmitter emitter : this.emitters) {
+        for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("message")
@@ -97,11 +100,9 @@ public class EventService implements EventKpService {
             sessionRepository.save(session);
             return session;
         }
-        else {
-            existingSession.setEnterActionAt(LocalDateTime.now());
-            sessionRepository.save(existingSession);
-            return existingSession;
-        }
+        existingSession.setEnterActionAt(LocalDateTime.now());
+        sessionRepository.save(existingSession);
+        return existingSession;
 
     }
 
@@ -111,7 +112,9 @@ public class EventService implements EventKpService {
         session.setLeaveActionAt(LocalDateTime.now());
         session.setDuration(Duration.between(session.getEnterActionAt(),session.getLeaveActionAt()));
         sessionRepository.save(session);
-        this.emitData("session duration",session.getDuration().toHours() + "" + session.getDuration().toMinutes() + "" + session.getDuration().toSeconds() + "");
+        this.emitData("session duration",session.getDuration().toHours() + ""
+                + session.getDuration().toMinutes()
+                + "" + session.getDuration().toSeconds() + "");
         return session;
     }
 
@@ -147,21 +150,21 @@ public class EventService implements EventKpService {
     @Override
     public long countEventsParticpatedAt(String uername) {
         long countAll = sessionRepository.countAllByUserName(uername);
-        this.emitData("participants count",countAll+"");
+        this.emitData(PARTICIPANT_COUNT,countAll+"");
         return countAll;
     }
 
     @Override
     public long getParticipantsNumber(){
         long totalParticipants = sessionRepository.count();
-        this.emitData("participants count",totalParticipants+"");
+        this.emitData(PARTICIPANT_COUNT,totalParticipants+"");
         return totalParticipants;
     }
 
     @Override
     public long countParticipantsByRoomId(UUID roomId) {
         long countAll = sessionRepository.countAllByRoomId(roomId);
-        this.emitData("participants count",countAll+"");
+        this.emitData(PARTICIPANT_COUNT,countAll+"");
         return countAll;
     }
 
@@ -204,15 +207,15 @@ public class EventService implements EventKpService {
 
 
     @Override
-    public long MaximalParticipation(){
-        List<Long> participations = sessionRepository.getMaximalParticipation();
-        return participations.get(0);
+    public long maximalParticipation(){
+        List<Long> participation = sessionRepository.getMaximalParticipation();
+        return participation.get(0);
     }
 
     @Override
-    public long MinimalParticipation(){
-        List<Long> participations = sessionRepository.getMinimalParticipation();
-        return participations.get(0);
+    public long minimalParticipation(){
+        List<Long> participation = sessionRepository.getMinimalParticipation();
+        return participation.get(0);
     }
 
 

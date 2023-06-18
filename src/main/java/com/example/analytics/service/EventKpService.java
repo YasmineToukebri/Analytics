@@ -1,11 +1,11 @@
-package com.example.Analytics.service;
+package com.example.analytics.service;
 
-import com.example.Analytics.dto.CountEventViews;
-import com.example.Analytics.dto.SessionAction;
-import com.example.Analytics.models.EventKpi;
-import com.example.Analytics.models.QuizzAction;
-import com.example.Analytics.models.Session;
-import com.example.Analytics.models.ViewEventAction;
+import com.example.analytics.dto.CountEventViews;
+import com.example.analytics.dto.SessionAction;
+import com.example.analytics.models.EventKpi;
+import com.example.analytics.models.QuizzAction;
+import com.example.analytics.models.Session;
+import com.example.analytics.models.ViewEventAction;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -55,7 +55,7 @@ public interface EventKpService {
 
     long getParticipantsNumber();
 
-    long MaximalParticipation();
+    long maximalParticipation();
 
-    long MinimalParticipation();
+    long minimalParticipation();
 }

@@ -1,4 +1,4 @@
-package com.example.Analytics.models;
+package com.example.analytics.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

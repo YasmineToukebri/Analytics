@@ -1,7 +1,8 @@
-package com.example.Analytics.models;
+package com.example.analytics.models;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,14 +13,19 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
-@Table(name = "view_event")
-public class ViewEventAction  {
+@Table(name = "quizz_action")
+public class QuizzAction {
     @Id
-    @GeneratedValue( strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @Column(name = "user_name")
     private String userName;
     @Column(name = "event_id")
     private UUID eventId;
-    private LocalDateTime seenAt;
+    @Column(name = "quiz_id")
+    private String quizId;
+    @Column(name = "action_at")
+    private LocalDateTime passedAt;
 }
