@@ -11,6 +11,7 @@ import com.example.analytics.repository.SessionRepository;
 import com.example.analytics.repository.ViewEventRepository;
 import com.example.analytics.repository.QuizAction;
 import com.example.analytics.models.QuizzAction;
+import com.example.analytics.dto.Participation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -83,6 +84,8 @@ public class EventService implements EventKpService {
         ViewEventAction action = viewEventRepository.save(viewEventAction);
         this.emitData("Views per user",this.countViewsByUser(viewEventAction.getUserName()) + "");
         this.emitData("Views per event",this.viewEvent(viewEventAction.getEventId()) + "");
+        this.emitData("Max Views number",this.getMaxViews()+"");
+        this.emitData("Min Views number",this.getMinViews()+"");
         return action;
     }
 
@@ -98,6 +101,8 @@ public class EventService implements EventKpService {
                     .build();
             session.setDuration(Duration.ZERO);
             sessionRepository.save(session);
+            this.emitData("Maximal participation" , this.MaximalParticipation() + "");
+            this.emitData("Minimal participation" , this.MinimalParticipation() + "");
             return session;
         }
         existingSession.setEnterActionAt(LocalDateTime.now());
@@ -121,7 +126,7 @@ public class EventService implements EventKpService {
     @Override
     public String getSessionDuration(String username, UUID roomId){
         Session session = sessionRepository.findAllByUserNameAndRoomId(username,roomId);
-        return session.getDuration().toHours() +  "h"  +  session.getDuration().toMinutes() + "M" + session.getDuration().toSeconds() + "s";
+        return "user " + username + session.getDuration().toHours() +  "hours"  +  session.getDuration().toMinutes() + "Minutes" + session.getDuration().toSeconds() + "s";
     }
 
     @Override
@@ -207,15 +212,15 @@ public class EventService implements EventKpService {
 
 
     @Override
-    public long maximalParticipation(){
-        List<Long> participation = sessionRepository.getMaximalParticipation();
-        return participation.get(0);
+    public Participation maximalParticipation(){
+        List<Participation> participations = sessionRepository.getMaximalParticipation();
+        return participations.get(0);
     }
 
     @Override
-    public long minimalParticipation(){
-        List<Long> participation = sessionRepository.getMinimalParticipation();
-        return participation.get(0);
+    public Participation minimalParticipation(){
+        List<Participation> participations = sessionRepository.getMinimalParticipation();
+        return participations.get(0);
     }
 
 

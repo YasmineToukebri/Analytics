@@ -13,11 +13,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 public class SessionAction {
     private UUID id;
-    @Column(name = "user_name")
     private String userName;
-    @Column(name = "event_id")
     private UUID roomId;
 }

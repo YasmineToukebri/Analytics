@@ -1,6 +1,7 @@
 package com.example.analytics.repository;
 
 import com.example.analytics.models.Session;
+import com.example.analytics.dto.Participation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -30,10 +31,10 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
     @Query("SELECT s FROM Session s ORDER BY s.duration ASC")
     List<Session> getMinDuration();
 
-    @Query("SELECT count(roomId) FROM Session group by roomId order by count(*) ASC")
-    List<Long> getMinimalParticipation();
+    @Query("SELECT count(roomId) as countParticipants, roomId as roomId FROM Session group by roomId order by count(*) ASC")
+    List<Participation> getMinimalParticipation();
 
-    @Query("SELECT count(roomId) FROM Session group by roomId order by count(*) DESC")
-    List<Long> getMaximalParticipation();
+    @Query("SELECT count(roomId) as countParticipants, roomId as roomId FROM Session group by roomId order by count(*) DESC")
+    List<Participation> getMaximalParticipation();
 
 }

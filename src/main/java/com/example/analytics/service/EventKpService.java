@@ -6,6 +6,7 @@ import com.example.analytics.models.EventKpi;
 import com.example.analytics.models.QuizzAction;
 import com.example.analytics.models.Session;
 import com.example.analytics.models.ViewEventAction;
+import com.example.analytics.dto.Participation;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public interface EventKpService {
 
     long getParticipantsNumber();
 
-    long maximalParticipation();
+    Participation maximalParticipation();
 
-    long minimalParticipation();
+    Participation minimalParticipation();
 }
