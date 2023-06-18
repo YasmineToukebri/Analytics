@@ -1,6 +1,7 @@
 package com.example.Analytics.controller;
 
 import com.example.Analytics.dto.CountEventViews;
+import com.example.Analytics.dto.Participation;
 import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
@@ -128,12 +129,12 @@ public class EventKpiController {
     }
 
     @GetMapping("/maximal-participants")
-    long getMaximalParticipants() {
+    Participation getMaximalParticipants() {
         return service.MaximalParticipation();
     }
 
     @GetMapping("/minimal-participants")
-    long getMinimalParticipants() {
+    Participation getMinimalParticipants() {
         return service.MinimalParticipation();
     }
 

@@ -13,8 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
-@Table(name = "session_action")
 public class SessionAction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

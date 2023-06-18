@@ -1,6 +1,7 @@
 package com.example.Analytics.service;
 
 import com.example.Analytics.dto.CountEventViews;
+import com.example.Analytics.dto.Participation;
 import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.EventKpi;
 import com.example.Analytics.models.QuizzAction;
@@ -55,7 +56,7 @@ public interface EventKpService {
 
     long getParticipantsNumber();
 
-    long MaximalParticipation();
+    Participation MaximalParticipation();
 
-    long MinimalParticipation();
+    Participation MinimalParticipation();
 }

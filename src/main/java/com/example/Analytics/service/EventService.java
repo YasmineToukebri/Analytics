@@ -2,6 +2,7 @@ package com.example.Analytics.service;
 
 import com.example.Analytics.dto.CountEventViews;
 import com.example.Analytics.dto.DataToEmit;
+import com.example.Analytics.dto.Participation;
 import com.example.Analytics.dto.SessionAction;
 import com.example.Analytics.models.ViewEventAction;
 import com.example.Analytics.models.*;
@@ -80,6 +81,8 @@ public class EventService implements EventKpService {
         ViewEventAction action = viewEventRepository.save(viewEventAction);
         this.emitData("Views per user",this.countViewsByUser(viewEventAction.getUserName()) + "");
         this.emitData("Views per event",this.viewEvent(viewEventAction.getEventId()) + "");
+        this.emitData("Max Views number",this.getMaxViews()+"");
+        this.emitData("Min Views number",this.getMinViews()+"");
         return action;
     }
 
@@ -95,6 +98,8 @@ public class EventService implements EventKpService {
                     .build();
             session.setDuration(Duration.ZERO);
             sessionRepository.save(session);
+            this.emitData("Maximal participation" , this.MaximalParticipation() + "");
+            this.emitData("Minimal participation" , this.MinimalParticipation() + "");
             return session;
         }
         else {
@@ -118,7 +123,7 @@ public class EventService implements EventKpService {
     @Override
     public String getSessionDuration(String username, UUID roomId){
         Session session = sessionRepository.findAllByUserNameAndRoomId(username,roomId);
-        return session.getDuration().toHours() +  "h"  +  session.getDuration().toMinutes() + "M" + session.getDuration().toSeconds() + "s";
+        return "user " + username + session.getDuration().toHours() +  "hours"  +  session.getDuration().toMinutes() + "Minutes" + session.getDuration().toSeconds() + "s";
     }
 
     @Override
@@ -204,14 +209,14 @@ public class EventService implements EventKpService {
 
 
     @Override
-    public long MaximalParticipation(){
-        List<Long> participations = sessionRepository.getMaximalParticipation();
+    public Participation MaximalParticipation(){
+        List<Participation> participations = sessionRepository.getMaximalParticipation();
         return participations.get(0);
     }
 
     @Override
-    public long MinimalParticipation(){
-        List<Long> participations = sessionRepository.getMinimalParticipation();
+    public Participation MinimalParticipation(){
+        List<Participation> participations = sessionRepository.getMinimalParticipation();
         return participations.get(0);
     }
 
