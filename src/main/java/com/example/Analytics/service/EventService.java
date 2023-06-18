@@ -153,6 +153,16 @@ public class EventService implements EventKpService {
 
     }
 
+    @Override
+    public long countALlEvents() {
+        return eventKpiRepository.count();
+    }
+
+    @Override
+    public long countAllEventsByUserName(String userName) {
+        return eventKpiRepository.countByUserName(userName);
+    }
+
     public void emitData(String action,String data) {
         DataToEmit dataToEmit = DataToEmit.builder()
                 .action(action)

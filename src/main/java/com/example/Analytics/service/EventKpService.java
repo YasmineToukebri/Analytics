@@ -14,6 +14,10 @@ import java.util.UUID;
 public interface EventKpService {
     void addKpi(EventKpi eventKpi);
 
+    long countALlEvents();
+
+    long countAllEventsByUserName(String userName);
+
     long viewEvent(UUID viewEvent);
 
     SseEmitter subscribe() throws IOException;
@@ -51,13 +55,18 @@ public interface EventKpService {
     Long findTotalByCurrentMonth();
 
     Long findTotalByTodayAndUserName(String userName);
-    String findUserWithLeastAbortedEvents();
-    String findUserWithMostAbortedEvents();
-    Long findTotalAbortedEventToday();
-    Long findTotalAbortedEventByCurrentWeek();
-    Long findTotalAbortedEventByCurrentMonth();
-    double calculateAverageAbortedEventsPerUser();
 
+    String findUserWithLeastAbortedEvents();
+
+    String findUserWithMostAbortedEvents();
+
+    Long findTotalAbortedEventToday();
+
+    Long findTotalAbortedEventByCurrentWeek();
+
+    Long findTotalAbortedEventByCurrentMonth();
+
+    double calculateAverageAbortedEventsPerUser();
 
 
     Long findTotalByCurrentWeekAndUserName(String userName);
