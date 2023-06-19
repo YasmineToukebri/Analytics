@@ -159,6 +159,7 @@ public class EventService implements EventKpService {
             throw new EmptyListException("No session found for the user " + username + " in the room " + roomId);
         }
         return MaxMinSession.builder()
+                .roomId(userSession.getRoomId())
                 .duration(userSession.getDuration().toHours()+"hours " + userSession.getDuration().toMinutes()+"minutes " + userSession.getDuration().toSeconds()+"seconds ")
                 .build();
     }
@@ -282,6 +283,7 @@ public class EventService implements EventKpService {
         checkNullList(e -> e == null || e.isEmpty(), "No sessions found for the user : " + username, userSessions);
         Session userLastSession = userSessions.get(0);
         return MaxMinSession.builder()
+                .roomId(userLastSession.getRoomId())
                 .duration(userLastSession.getDuration().toHours()+"hours " + userLastSession.getDuration().toMinutes()+"minutes " + userLastSession.getDuration().toSeconds()+"seconds ")
                 .build();
     }
