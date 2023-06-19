@@ -1,6 +1,6 @@
 package com.example.analytics.service;
 
-import com.example.analytics.Exception.emptyListException;
+import com.example.analytics.exception.EmptyListException;
 import com.example.analytics.dto.*;
 import com.example.analytics.models.EventKpi;
 import com.example.analytics.models.QuizzAction;
@@ -24,37 +24,18 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 
 @RequiredArgsConstructor
 @Service
 public class EventService implements EventKpService {
 
-
-    enum Action {
-        viewsPerUser,
-        maxViewsNumber,
-        minViewsNumber,
-        sessionDuration,
-        maximalSessionDuration,
-        minimalSessionDuration,
-        totalParticipation,
-        currentUserParticipation,
-        maximalParticipation,
-        minimalParticipation,
-        countQuizzPerEvent,
-        countQuizzPerUser,
-
-
-    }
     private static final List<SseEmitter> emitters = new java.util.ArrayList<>();
     private final EventKpiRepository eventKpiRepository;
     private final ViewEventRepository viewEventRepository;
     private final QuizAction quizzActionRepository;
     private final SessionRepository sessionRepository;
-
-
-
 
     @Override
     public SseEmitter subscribe() throws IOException {
@@ -67,11 +48,7 @@ public class EventService implements EventKpService {
         return sseEmitter;
     }
 
-    public void emitData(String action,String data) {
-        DataToEmit dataToEmit = DataToEmit.builder()
-                .action(action)
-                .data(data)
-                .build();
+    public void emitData(DataToEmit dataToEmit) {
         for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(SseEmitter.event()
@@ -81,6 +58,9 @@ public class EventService implements EventKpService {
                 e.printStackTrace();
             }
         }
+    }
+    public void emitMultipleData(List<DataToEmit> dataToEmits) {
+        dataToEmits.forEach(this::emitData);
     }
 
     @Override
@@ -97,7 +77,7 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public ViewEventAction handleViewAction(ViewEventAction viewEventAction) throws JsonProcessingException, emptyListException {
+    public ViewEventAction handleViewAction(ViewEventAction viewEventAction) throws JsonProcessingException, EmptyListException {
         viewEventAction.setSeenAt(LocalDateTime.now());
         ViewEventAction action = viewEventRepository.save(viewEventAction);
         JsonMapper jsonMapper = new JsonMapper();
@@ -106,9 +86,13 @@ public class EventService implements EventKpService {
         String maxViews = ow.writeValueAsString(this.getMaxViews());
         String minViews = ow.writeValueAsString(this.getMinViews());
         String userTotalViews = ow.writeValueAsString(this.countViewsByUser(viewEventAction.getUserName()));
-        this.emitData(String.valueOf(Action.viewsPerUser),userTotalViews);
-        this.emitData(String.valueOf(Action.maxViewsNumber),maxViews);
-        this.emitData(String.valueOf(Action.minViewsNumber),minViews);
+
+        List<DataToEmit> dataToEmits = List.of(
+                DataToEmit.builder().action(EAction.viewsPerUser.toString()).data(userTotalViews).build(),
+                DataToEmit.builder().action(EAction.maxViewsNumber.toString()).data(maxViews).build(),
+                DataToEmit.builder().action(EAction.minViewsNumber.toString()).data(minViews).build()
+        );
+        this.emitMultipleData(dataToEmits);
         return action;
     }
 
@@ -133,47 +117,50 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public Session handleClosingSession(SessionAction sessionAction) throws JsonProcessingException, emptyListException {
+    public Session handleClosingSession(SessionAction sessionAction) throws JsonProcessingException, EmptyListException, NullPointerException {
         Session session = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId());
+        if(session==null){
+            throw new EmptyListException("No session found for the user " + sessionAction.getUserName() + " in the room " + sessionAction.getRoomId());
+        }
         session.setLeaveActionAt(LocalDateTime.now());
         session.setDuration(Duration.between(session.getEnterActionAt(),session.getLeaveActionAt()));
         sessionRepository.save(session);
         JsonMapper jsonMapper = new JsonMapper();
         jsonMapper.registerModule(new JavaTimeModule());
         ObjectWriter ow = new ObjectMapper().registerModule(new JavaTimeModule()).writer().withDefaultPrettyPrinter();
-        MaxMinSession last_user_session = MaxMinSession.builder().userName(session.getUserName())
-                .roomId(session.getRoomId())
-                .duration(session.getDuration().toHours() + "hours " + session.getDuration().toMinutes()+"minutes " + session.getDuration().toSeconds() + "seconds")
-                .build();
-        MaxMinSession maxSession = this.getMaxSession();
-        MaxMinSession minSession = this.getMinSession();
+
+        //TODO : create query sql to retrieve all data
+        String totalParticipation = String.valueOf(this.getParticipantsNumber());
+        String userParticipation = String.valueOf(this.countEventsParticpatedAt(sessionAction.getUserName()));
+
         String sessionDuration = ow.writeValueAsString(this.getLastSessionDuration(sessionAction.getUserName()));
-        String maximalSessionDuration = ow.writeValueAsString(maxSession);
-        String minimalSessionDuration = ow.writeValueAsString(minSession);
-        String totalParticipation = ow.writeValueAsString(this.getParticipantsNumber());
-        String userParticipation = ow.writeValueAsString(this.countEventsParticpatedAt(sessionAction.getUserName()));
+        String maximalSessionDuration = ow.writeValueAsString(this.getMaxSession());
+        String minimalSessionDuration = ow.writeValueAsString(this.getMinSession());
         String maximalParticipation = ow.writeValueAsString(this.maximalParticipation());
         String minimalParticipation = ow.writeValueAsString(this.minimalParticipation());
-        this.emitData(String.valueOf(Action.sessionDuration),sessionDuration);
-        this.emitData(String.valueOf(Action.maximalSessionDuration) , maximalSessionDuration);
-        this.emitData(String.valueOf(Action.minimalSessionDuration) , minimalSessionDuration);
-        this.emitData(String.valueOf(Action.totalParticipation), totalParticipation);
-        this.emitData(String.valueOf(Action.currentUserParticipation) ,userParticipation);
-        this.emitData(String.valueOf(Action.maximalParticipation), maximalParticipation);
-        this.emitData(String.valueOf(Action.minimalParticipation), minimalParticipation);
+
+        List<DataToEmit> dataToEmits = List.of(
+                DataToEmit.builder().action(EAction.sessionDuration.toString()).data(sessionDuration).build(),
+                DataToEmit.builder().action(EAction.maximalSessionDuration.toString()).data(maximalSessionDuration).build(),
+                DataToEmit.builder().action(EAction.minimalSessionDuration.toString()).data(minimalSessionDuration).build(),
+                DataToEmit.builder().action(EAction.totalParticipation.toString()).data(totalParticipation).build(),
+                DataToEmit.builder().action(EAction.currentUserParticipation.toString()).data(userParticipation).build(),
+                DataToEmit.builder().action(EAction.maximalParticipation.toString()).data(maximalParticipation).build(),
+                DataToEmit.builder().action(EAction.minimalParticipation.toString()).data(minimalParticipation).build()
+        );
+        this.emitMultipleData(dataToEmits);
         return session;
     }
 
     @Override
-    public MaxMinSession getSessionDuration(String username, UUID roomId) throws emptyListException {
+    public MaxMinSession getSessionDuration(String username, UUID roomId) {
         Session userSession = sessionRepository.findAllByUserNameAndRoomId(username,roomId);
         if(userSession==null){
-            throw new emptyListException("no session found for the user " + username + " in the room " + roomId);
+            throw new EmptyListException("No session found for the user " + username + " in the room " + roomId);
         }
-        MaxMinSession useSession = MaxMinSession.builder()
+        return MaxMinSession.builder()
                 .duration(userSession.getDuration().toHours()+"hours " + userSession.getDuration().toMinutes()+"minutes " + userSession.getDuration().toSeconds()+"seconds ")
                 .build();
-        return useSession;
     }
 
     @Override
@@ -195,8 +182,11 @@ public class EventService implements EventKpService {
     public void persistQuizz(QuizzAction quizzAction) {
         quizzAction.setPassedAt(LocalDateTime.now());
         quizzActionRepository.save(quizzAction);
-        this.emitData(String.valueOf(Action.countQuizzPerEvent),this.countEventQuizzResponses(quizzAction.getEventId())+" " + "event :" + quizzAction.getEventId());
-        this.emitData(  String.valueOf(Action.countQuizzPerUser),this.countQuizzByUser(quizzAction.getUserName())+" " + "user :" + quizzAction.getUserName());
+        List<DataToEmit> dataToEmits = List.of(
+                DataToEmit.builder().action(EAction.countQuizzPerEvent.toString()).data(this.countEventQuizzResponses(quizzAction.getEventId())+" " + "event :" + quizzAction.getEventId()).build(),
+                DataToEmit.builder().action(EAction.countQuizzPerUser.toString()).data(this.countQuizzByUser(quizzAction.getUserName())+" " + "user :" + quizzAction.getUserName()).build()
+        );
+        this.emitMultipleData(dataToEmits);
     }
 
     @Override
@@ -216,98 +206,90 @@ public class EventService implements EventKpService {
 
 
     @Override
-    public CountEventViews getMaxViews() throws emptyListException {
+    public CountEventViews getMaxViews() {
         List<CountEventViews> views = viewEventRepository.countMaxViews();
-        if(views.isEmpty() || views==null){
-            throw new emptyListException("No Max views found");
-        }
+        checkNullList(e -> e == null || e.isEmpty(), "No Max views found", views);
+
         return views.get(0);
     }
 
     @Override
-    public CountEventViews getMinViews() throws emptyListException {
+    public CountEventViews getMinViews() {
         List<CountEventViews> views = viewEventRepository.countMinViews();
-        if (views.isEmpty() || views==null){
-            throw new emptyListException("No Min views found");
-        }
+        checkNullList(e -> e == null || e.isEmpty(), "No Min views found", views);
+
         return views.get(0);
     }
 
     @Override
-    public Session getMaxDurationByRoomId(UUID roomId) throws emptyListException {
+    public Session getMaxDurationByRoomId(UUID roomId) {
         List<Session> sessions =  sessionRepository.getMaxDurationByRoomId(roomId);
-        if (sessions.isEmpty() || sessions==null){
-            throw new emptyListException("No Maximal session found for the event : "+ roomId);
-        }
+        checkNullList(e -> e == null || e.isEmpty(), "No Maximal session found for the event : " + roomId, sessions);
+
         return sessions.get(0);
     }
 
     @Override
-    public Session getMinDurationByRoomId(UUID roomId) throws emptyListException {
+    public Session getMinDurationByRoomId(UUID roomId) {
         List<Session> sessions =  sessionRepository.getMinDurationByRoomId(roomId);
-        if (sessions.isEmpty() || sessions==null){
-            throw new emptyListException("No Minimal session found for the event : " + roomId);
-        }
+        checkNullList(e -> e == null || e.isEmpty(), "No Minimal session found for the event : " + roomId, sessions);
         return sessions.get(0);
     }
 
     @Override
-    public MaxMinSession getMaxSession() throws emptyListException {
+    public MaxMinSession getMaxSession() {
         List<Session> sessions = sessionRepository.getMaxDuration();
-        if (sessions.isEmpty() || sessions==null){
-            throw new emptyListException("No Maximal session found");
-        }
+        checkNullList(e -> e == null || e.isEmpty(), "No Maximal session found", sessions);
         Session maxSession = sessions.get(0);
-        MaxMinSession maximalSession = MaxMinSession.builder().userName(maxSession.getUserName())
-                        .roomId(maxSession.getRoomId())
-                        .duration(maxSession.getDuration().toHours()+"hours" + maxSession.getDuration().toMinutes()+"minutes" + maxSession.getDuration().toSeconds()+"seconds")
-                        .build();
-        return maximalSession;
+        return MaxMinSession.builder()
+                .userName(maxSession.getUserName())
+                .roomId(maxSession.getRoomId())
+                .duration(maxSession.getDuration().toHours()+"hours" + maxSession.getDuration().toMinutes()+"minutes" + maxSession.getDuration().toSeconds()+"seconds")
+                .build();
     }
 
     @Override
-    public MaxMinSession getMinSession() throws emptyListException {
+    public MaxMinSession getMinSession() {
         List<Session> sessions =  sessionRepository.getMinDuration();
-        if (sessions.isEmpty() || sessions==null){
-            throw new emptyListException("No Maximal session found");
-        }
+        checkNullList(e -> e == null || e.isEmpty(), "No Minimal session found", sessions);
         Session minSession = sessions.get(0);
-        MaxMinSession minimalSession = MaxMinSession.builder()
+        return MaxMinSession.builder()
                 .userName(minSession.getUserName())
                 .roomId(minSession.getRoomId())
                 .duration(minSession.getDuration().toHours()+"hours" + minSession.getDuration().toMinutes()+"minutes" + minSession.getDuration().toSeconds()+"seconds")
                 .build();
-        return minimalSession;
     }
 
 
     @Override
-    public Participation maximalParticipation() throws emptyListException {
+    public Participation maximalParticipation() {
         List<Participation> participations = sessionRepository.getMaximalParticipation();
-        if (participations.isEmpty() || participations==null)
-            throw new emptyListException("No Maximal participation found");
+        checkNullList(e -> e == null || e.isEmpty(), "No Maximal participation found", participations);
         return participations.get(0);
     }
 
     @Override
-    public Participation minimalParticipation() throws emptyListException {
+    public Participation minimalParticipation() {
         List<Participation> participations = sessionRepository.getMinimalParticipation();
-        if (participations.isEmpty() || participations==null)
-            throw new emptyListException("No Minimal participation found");
+        checkNullList(e -> e == null || e.isEmpty(), "No Minimal participation found", participations);
         return participations.get(0);
     }
 
 
     @Override
-    public MaxMinSession getLastSessionDuration(String username) throws emptyListException {
+    public MaxMinSession getLastSessionDuration(String username) {
         List<Session> userSessions = sessionRepository.getSessionsByUserName(username);
-        if (userSessions.isEmpty() || userSessions==null)
-            throw new emptyListException("No sessions found for the user : " + username);
+        checkNullList(e -> e == null || e.isEmpty(), "No sessions found for the user : " + username, userSessions);
         Session userLastSession = userSessions.get(0);
-        MaxMinSession userSession = MaxMinSession.builder()
+        return MaxMinSession.builder()
                 .duration(userLastSession.getDuration().toHours()+"hours " + userLastSession.getDuration().toMinutes()+"minutes " + userLastSession.getDuration().toSeconds()+"seconds ")
                 .build();
-        return userSession;
+    }
+
+    private <T> void checkNullList(Predicate<List<T>> predicate, String message, List<T> list) {
+        if(predicate.test(list)) {
+            throw new EmptyListException(message);
+        }
     }
 
 }

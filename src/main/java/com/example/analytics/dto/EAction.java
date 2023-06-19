@@ -1,6 +1,6 @@
 package com.example.analytics.dto;
 
-public enum Action {
+public enum EAction {
     viewsPerUser,
     maxViewsNumber,
     minViewsNumber,
