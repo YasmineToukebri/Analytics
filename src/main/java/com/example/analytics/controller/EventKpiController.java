@@ -1,6 +1,7 @@
 package com.example.analytics.controller;
 
 import com.example.analytics.dto.CountEventViews;
+import com.example.analytics.dto.MaxMinSession;
 import com.example.analytics.dto.SessionAction;
 import com.example.analytics.models.EventKpi;
 import com.example.analytics.models.QuizzAction;
@@ -8,6 +9,7 @@ import com.example.analytics.models.Session;
 import com.example.analytics.models.ViewEventAction;
 import com.example.analytics.service.EventKpService;
 import com.example.analytics.dto.Participation;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -32,7 +34,7 @@ public class EventKpiController {
     }
 
     @PostMapping("/view-event")
-    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) {
+    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) throws JsonProcessingException {
         return service.handleViewAction(viewEventAction);
     }
 
@@ -42,7 +44,7 @@ public class EventKpiController {
     }
 
     @PostMapping("/end-meeting")
-    Session endRoomKpi( @RequestBody SessionAction sessionAction) {
+    Session endRoomKpi( @RequestBody SessionAction sessionAction) throws JsonProcessingException {
         return service.handleClosingSession(sessionAction);
     }
 
@@ -52,15 +54,13 @@ public class EventKpiController {
     }
 
 
-    @GetMapping("/quizz-by-user")
-    void countQuizzByUser(@RequestParam(name = "username") String userName) {
-        service.countQuizzByUser(userName);
-    }
 
-    @GetMapping("/quizz-by-event")
-    void countQuizzByEvent(@RequestParam(name = "eventid") UUID eventId) {
-        service.countEventQuizzResponses(eventId);
-    }
+
+
+
+
+
+
 
     @GetMapping("/views-by-user")
     long countViewsByUser(@RequestParam(name = "username") String userName) {
@@ -114,17 +114,17 @@ public class EventKpiController {
 
 
     @GetMapping("/session-duration-max")
-    Session getMaxSession() {
+    MaxMinSession getMaxSession() {
         return service.getMaxSession();
     }
 
     @GetMapping("/session-duration-min")
-    Session getMinSession() {
+    MaxMinSession getMinSession() {
         return service.getMinSession();
     }
 
     @GetMapping("/session-duration-by-user")
-    String getSessionDurationByUser(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
+    MaxMinSession getSessionDurationByUser(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
     return service.getSessionDuration(username, eventId);
     }
 
@@ -138,4 +138,19 @@ public class EventKpiController {
         return service.minimalParticipation();
     }
 
+    @GetMapping("/quizz-by-user")
+    void countQuizzByUser(@RequestParam(name = "username") String userName) {
+        service.countQuizzByUser(userName);
+    }
+
+    @GetMapping("/quizz-by-event")
+    void countQuizzByEvent(@RequestParam(name = "eventid") UUID eventId) {
+        service.countEventQuizzResponses(eventId);
+    }
+
+
+    @GetMapping("/user-last-session-duration")
+    MaxMinSession getLastSessionDurationByUser(@RequestParam(name = "username") String username) {
+        return service.getLastSessionDuration(username);
+    }
 }

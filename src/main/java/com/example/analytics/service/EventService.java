@@ -1,17 +1,19 @@
 package com.example.analytics.service;
 
-import com.example.analytics.dto.CountEventViews;
-import com.example.analytics.dto.DataToEmit;
-import com.example.analytics.dto.SessionAction;
+import com.example.analytics.dto.*;
 import com.example.analytics.models.EventKpi;
+import com.example.analytics.models.QuizzAction;
 import com.example.analytics.models.Session;
 import com.example.analytics.models.ViewEventAction;
 import com.example.analytics.repository.EventKpiRepository;
+import com.example.analytics.repository.QuizAction;
 import com.example.analytics.repository.SessionRepository;
 import com.example.analytics.repository.ViewEventRepository;
-import com.example.analytics.repository.QuizAction;
-import com.example.analytics.models.QuizzAction;
-import com.example.analytics.dto.Participation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -28,7 +30,7 @@ import java.util.UUID;
 public class EventService implements EventKpService {
 
     private static final List<SseEmitter> emitters = new java.util.ArrayList<>();
-    private static final String PARTICIPANT_COUNT = "participants count";
+//    private static final String PARTICIPANT_COUNT = "participants count";
     private final EventKpiRepository eventKpiRepository;
     private final ViewEventRepository viewEventRepository;
     private final QuizAction quizzActionRepository;
@@ -79,13 +81,19 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public ViewEventAction handleViewAction(ViewEventAction viewEventAction){
+    public ViewEventAction handleViewAction(ViewEventAction viewEventAction) throws JsonProcessingException {
         viewEventAction.setSeenAt(LocalDateTime.now());
         ViewEventAction action = viewEventRepository.save(viewEventAction);
-        this.emitData("Views per user",this.countViewsByUser(viewEventAction.getUserName()) + "");
-        this.emitData("Views per event",this.viewEvent(viewEventAction.getEventId()) + "");
-        this.emitData("Max Views number",this.getMaxViews()+"");
-        this.emitData("Min Views number",this.getMinViews()+"");
+        JsonMapper jsonMapper = new JsonMapper();
+        jsonMapper.registerModule(new JavaTimeModule());
+        ObjectWriter ow = new ObjectMapper().registerModule(new JavaTimeModule()).writer().withDefaultPrettyPrinter();
+        String max_views = ow.writeValueAsString(this.getMaxViews());
+        String min_views = ow.writeValueAsString(this.getMinViews());
+        String user_total_views = ow.writeValueAsString(this.countViewsByUser(viewEventAction.getUserName()));
+        this.emitData("Views per user",user_total_views);
+//        this.emitData("Views per event",this.viewEvent(viewEventAction.getEventId()) + ""+ "event :" + viewEventAction.getEventId());
+        this.emitData("Max Views number",max_views);
+        this.emitData("Min Views number",min_views);
         return action;
     }
 
@@ -101,8 +109,6 @@ public class EventService implements EventKpService {
                     .build();
             session.setDuration(Duration.ZERO);
             sessionRepository.save(session);
-            this.emitData("Maximal participation" , this.maximalParticipation() + "");
-            this.emitData("Minimal participation" , this.minimalParticipation() + "");
             return session;
         }
         existingSession.setEnterActionAt(LocalDateTime.now());
@@ -112,21 +118,45 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public Session handleClosingSession(SessionAction sessionAction) {
+    public Session handleClosingSession(SessionAction sessionAction) throws JsonProcessingException {
         Session session = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId());
         session.setLeaveActionAt(LocalDateTime.now());
         session.setDuration(Duration.between(session.getEnterActionAt(),session.getLeaveActionAt()));
         sessionRepository.save(session);
-        this.emitData("session duration",session.getDuration().toHours() + ""
-                + session.getDuration().toMinutes()
-                + "" + session.getDuration().toSeconds() + "");
+        JsonMapper jsonMapper = new JsonMapper();
+        jsonMapper.registerModule(new JavaTimeModule());
+        ObjectWriter ow = new ObjectMapper().registerModule(new JavaTimeModule()).writer().withDefaultPrettyPrinter();
+        MaxMinSession last_user_session = MaxMinSession.builder().userName(session.getUserName())
+                .roomId(session.getRoomId())
+                .duration(session.getDuration().toHours() + "hours " + session.getDuration().toMinutes()+"minutes " + session.getDuration().toSeconds() + "seconds")
+                .build();
+        MaxMinSession max_session = this.getMaxSession();
+        MaxMinSession min_session = this.getMinSession();
+        String session_duration = ow.writeValueAsString(this.getLastSessionDuration(sessionAction.getUserName()));
+        String maximal_session_duration = ow.writeValueAsString(max_session);
+        String minimal_session_duration = ow.writeValueAsString(min_session);
+        String total_participation = ow.writeValueAsString(this.getParticipantsNumber());
+        String user_participation = ow.writeValueAsString(this.countEventsParticpatedAt(sessionAction.getUserName()));
+        String maximal_participation = ow.writeValueAsString(this.maximalParticipation());
+        String minimal_participation = ow.writeValueAsString(this.minimalParticipation());
+        this.emitData("session duration",session_duration);
+        this.emitData("Maximal session duration" , maximal_session_duration);
+        this.emitData("Minimal session duration" , minimal_session_duration);
+        this.emitData("total participation" , total_participation);
+//        this.emitData("this event participation" , this.countParticipantsByRoomId(sessionAction.getRoomId()) + "");
+        this.emitData("this user participation" ,user_participation);
+        this.emitData("maximal participation" , maximal_participation);
+        this.emitData("minimal participation" , minimal_participation);
         return session;
     }
 
     @Override
-    public String getSessionDuration(String username, UUID roomId){
-        Session session = sessionRepository.findAllByUserNameAndRoomId(username,roomId);
-        return "user " + username + session.getDuration().toHours() +  "hours"  +  session.getDuration().toMinutes() + "Minutes" + session.getDuration().toSeconds() + "s";
+    public MaxMinSession getSessionDuration(String username, UUID roomId){
+        Session user_session = sessionRepository.findAllByUserNameAndRoomId(username,roomId);
+        MaxMinSession maxMinSession = MaxMinSession.builder()
+                .duration(user_session.getDuration().toHours()+"hours " + user_session.getDuration().toMinutes()+"minutes " + user_session.getDuration().toSeconds()+"seconds ")
+                .build();
+        return maxMinSession;
     }
 
     @Override
@@ -148,28 +178,25 @@ public class EventService implements EventKpService {
     public void persistQuizz(QuizzAction quizzAction) {
         quizzAction.setPassedAt(LocalDateTime.now());
         quizzActionRepository.save(quizzAction);
-        this.emitData("quizz count per event",this.countEventQuizzResponses(quizzAction.getEventId())+"");
-        this.emitData(  "quizz count per user",this.countQuizzByUser(quizzAction.getUserName())+"");
+        this.emitData("quizz count per event: ",this.countEventQuizzResponses(quizzAction.getEventId())+" " + "event :" + quizzAction.getEventId());
+        this.emitData(  "quizz count per user:",this.countQuizzByUser(quizzAction.getUserName())+" " + "user :" + quizzAction.getUserName());
     }
 
     @Override
     public long countEventsParticpatedAt(String uername) {
         long countAll = sessionRepository.countAllByUserName(uername);
-        this.emitData(PARTICIPANT_COUNT,countAll+"");
         return countAll;
     }
 
     @Override
     public long getParticipantsNumber(){
         long totalParticipants = sessionRepository.count();
-        this.emitData(PARTICIPANT_COUNT,totalParticipants+"");
         return totalParticipants;
     }
 
     @Override
     public long countParticipantsByRoomId(UUID roomId) {
         long countAll = sessionRepository.countAllByRoomId(roomId);
-        this.emitData(PARTICIPANT_COUNT,countAll+"");
         return countAll;
     }
 
@@ -199,15 +226,25 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public Session getMaxSession() {
+    public MaxMinSession getMaxSession() {
         List<Session> sessions = sessionRepository.getMaxDuration();
-        return sessions.get(0);
+        Session max_session = sessions.get(0);
+        MaxMinSession maxSession = MaxMinSession.builder().userName(max_session.getUserName())
+                        .roomId(max_session.getRoomId())
+                        .duration(max_session.getDuration().toHours()+"hours" + max_session.getDuration().toMinutes()+"minutes" + max_session.getDuration().toSeconds()+"seconds")
+                        .build();
+        return maxSession;
     }
 
     @Override
-    public Session getMinSession() {
+    public MaxMinSession getMinSession() {
         List<Session> sessions =  sessionRepository.getMinDuration();
-        return sessions.get(0);
+        Session min_session = sessions.get(0);
+        MaxMinSession minSession = MaxMinSession.builder()
+                .userName(min_session.getUserName())
+                .duration(min_session.getDuration().toHours()+"hours" + min_session.getDuration().toMinutes()+"minutes" + min_session.getDuration().toSeconds()+"seconds")
+                .build();
+        return minSession;
     }
 
 
@@ -223,6 +260,16 @@ public class EventService implements EventKpService {
         return participations.get(0);
     }
 
+
+    @Override
+    public MaxMinSession getLastSessionDuration(String username){
+        List<Session> user_sessions = sessionRepository.getSessionsByUserName(username);
+        Session user_last_session = user_sessions.get(0);
+        MaxMinSession maxMinSession = MaxMinSession.builder()
+                .duration(user_last_session.getDuration().toHours()+"hours " + user_last_session.getDuration().toMinutes()+"minutes " + user_last_session.getDuration().toSeconds()+"seconds ")
+                .build();
+        return maxMinSession;
+    }
 
 }
 

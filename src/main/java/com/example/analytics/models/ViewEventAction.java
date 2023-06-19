@@ -18,6 +18,7 @@ public class ViewEventAction  {
     @Id
     @GeneratedValue( strategy= GenerationType.AUTO)
     private UUID id;
+    @Column(name = "user_name")
     private String userName;
     @Column(name = "event_id")
     private UUID eventId;
