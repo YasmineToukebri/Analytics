@@ -1,4 +1,5 @@
-package com.example.Analytics.models;
+package com.example.analytics.models;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,20 +9,23 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 @Data
-@Table(name = "EventKpi")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 @Entity
-public class EventKpi {
+@Table(name = "quizz_action")
+public class QuizzAction {
     @Id
-    @GeneratedValue( strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    @Column(name = "creator")
+    @Column(name = "user_name")
     private String userName;
-    @Column(name = "eventId")
+    @Column(name = "event_id")
     private UUID eventId;
-    private LocalDateTime createdAt;
+    @Column(name = "quiz_id")
+    private String quizId;
+    @Column(name = "action_at")
+    private LocalDateTime passedAt;
 }

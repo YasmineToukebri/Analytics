@@ -1,4 +1,5 @@
-package com.example.Analytics.models;
+package com.example.analytics.dto;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,15 +7,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.UUID;
-@Entity
+
 @Data
-@Builder
-@Table(name = "sessions")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Session {
+@Builder
+@Entity
+@Table(name = "session_action")
+public class SessionAction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -22,11 +23,4 @@ public class Session {
     private String userName;
     @Column(name = "event_id")
     private UUID roomId;
-    @Column(name = "action")
-    private String action;
-    @Column(name = "enter_action_at")
-    private LocalDateTime enterActionAt;
-    @Column(name = "leave_action_at")
-    private LocalDateTime leaveActionAt;
 }
-

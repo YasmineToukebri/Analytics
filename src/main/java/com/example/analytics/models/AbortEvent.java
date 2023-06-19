@@ -1,4 +1,4 @@
-package com.example.Analytics.models;
+package com.example.analytics.models;
 
 
 import lombok.AllArgsConstructor;
@@ -10,15 +10,19 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
+@Table(name = "AbortEvent")
 @AllArgsConstructor
 @NoArgsConstructor
 
 @Entity
-public class ViewEvent {
+public class AbortEvent {
+
     @Id
     @GeneratedValue( strategy= GenerationType.AUTO)
     private UUID id;
     private String userName;
     private UUID eventId;
-    private LocalDateTime seenAt;
+
+    private LocalDateTime abortedAt;
+
 }

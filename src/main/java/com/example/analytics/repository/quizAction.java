@@ -1,6 +1,6 @@
-package com.example.Analytics.repository;
+package com.example.analytics.repository;
 
-import com.example.Analytics.models.QuizzAction;
+import com.example.analytics.models.QuizzAction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,12 +1,12 @@
-package com.example.Analytics.controller;
+package com.example.analytics.controller;
 
-import com.example.Analytics.dto.SessionAction;
-import com.example.Analytics.models.AbortEvent;
-import com.example.Analytics.models.EventKpi;
-import com.example.Analytics.models.QuizzAction;
-import com.example.Analytics.models.ViewEvent;
-import com.example.Analytics.repository.AbortEventRepository;
-import com.example.Analytics.service.EventKpService;
+import com.example.analytics.dto.SessionAction;
+import com.example.analytics.models.AbortEvent;
+import com.example.analytics.models.EventKpi;
+import com.example.analytics.models.QuizzAction;
+import com.example.analytics.models.ViewEvent;
+import com.example.analytics.repository.AbortEventRepository;
+import com.example.analytics.service.EventKpService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

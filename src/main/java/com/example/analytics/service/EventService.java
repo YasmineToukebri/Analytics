@@ -1,9 +1,11 @@
-package com.example.Analytics.service;
+package com.example.analytics.service;
 
-import com.example.Analytics.dto.DataToEmit;
-import com.example.Analytics.dto.SessionAction;
+import com.example.analytics.dto.DataToEmit;
+import com.example.analytics.dto.SessionAction;
 import com.example.Analytics.models.*;
 import com.example.Analytics.repository.*;
+import com.example.analytics.models.*;
+import com.example.analytics.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

@@ -1,10 +1,10 @@
-package com.example.Analytics.service;
+package com.example.analytics.service;
 
-import com.example.Analytics.dto.SessionAction;
-import com.example.Analytics.models.AbortEvent;
-import com.example.Analytics.models.EventKpi;
-import com.example.Analytics.models.QuizzAction;
-import com.example.Analytics.models.ViewEvent;
+import com.example.analytics.dto.SessionAction;
+import com.example.analytics.models.AbortEvent;
+import com.example.analytics.models.EventKpi;
+import com.example.analytics.models.QuizzAction;
+import com.example.analytics.models.ViewEvent;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;

@@ -1,10 +1,9 @@
-package com.example.Analytics.repository;
+package com.example.analytics.repository;
 
-import com.example.Analytics.models.AbortEvent;
+import com.example.analytics.models.AbortEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 

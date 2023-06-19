@@ -1,6 +1,6 @@
-package com.example.Analytics.repository;
+package com.example.analytics.repository;
 
-import com.example.Analytics.models.EventKpi;
+import com.example.analytics.models.EventKpi;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

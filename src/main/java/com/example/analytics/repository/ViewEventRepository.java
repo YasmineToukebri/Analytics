@@ -1,6 +1,6 @@
-package com.example.Analytics.repository;
+package com.example.analytics.repository;
 
-import com.example.Analytics.models.ViewEvent;
+import com.example.analytics.models.ViewEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
