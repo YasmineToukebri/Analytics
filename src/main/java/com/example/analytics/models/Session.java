@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 @Entity
@@ -28,5 +29,8 @@ public class Session {
     private LocalDateTime enterActionAt;
     @Column(name = "leave_action_at")
     private LocalDateTime leaveActionAt;
+    @Column(name = "duration")
+    private Duration duration;
+
 }
 

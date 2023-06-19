@@ -1,12 +1,14 @@
 package com.example.analytics.controller;
 
+import com.example.analytics.exception.EmptyListException;
+import com.example.analytics.dto.CountEventViews;
+import com.example.analytics.dto.MaxMinSession;
 import com.example.analytics.dto.SessionAction;
-import com.example.analytics.models.AbortEvent;
-import com.example.analytics.models.EventKpi;
-import com.example.analytics.models.QuizzAction;
-import com.example.analytics.models.ViewEvent;
-import com.example.analytics.repository.AbortEventRepository;
+import com.example.analytics.models.*;
+import com.example.analytics.models.ViewEventAction;
 import com.example.analytics.service.EventKpService;
+import com.example.analytics.dto.Participation;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,98 @@ import java.util.UUID;
 @RequestMapping("/monitoring")
 public class EventKpiController {
     private EventKpService service;
-    private AbortEventRepository abortEventRepository;
+    @GetMapping("/subscribe")
+    SseEmitter subscribe() throws IOException {
+        return service.subscribe();
+    }
+
+    @PostMapping("/view-event")
+    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) throws JsonProcessingException, EmptyListException {
+        return service.handleViewAction(viewEventAction);
+    }
+
+    @PostMapping("/join-room")
+    Session joinRoomKpi(@RequestBody SessionAction sessionAction) {
+        return service.handleSessionAction(sessionAction);
+    }
+
+    @PostMapping("/end-meeting")
+    Session endRoomKpi( @RequestBody SessionAction sessionAction) throws JsonProcessingException, EmptyListException {
+        return service.handleClosingSession(sessionAction);
+    }
+
+    @GetMapping("/session-duration")
+    void getSessionDuration(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
+        service.getSessionDuration(username, eventId);
+    }
+
+    @GetMapping("/participants")
+    long countParticipants() {
+        return service.getParticipantsNumber();
+    }
+
+    @GetMapping("/events-participated")
+    long countEventsParticipantAt(@RequestParam(name = "username") String username) {
+        return service.countEventsParticpatedAt(username);
+    }
+
+    @GetMapping("/participants-by-room")
+    long countParticipantsByRoomId(@RequestParam(name = "roomId") UUID roomId) {
+        return service.countParticipantsByRoomId(roomId);
+    }
+
+    @GetMapping("/max-views")
+    CountEventViews getMaxViews() {
+        return  service.getMaxViews();
+    }
+
+    @GetMapping("/min-views")
+    CountEventViews getMinViews() {
+        return service.getMinViews();
+    }
+
+    @GetMapping("/session-duration-by-room-max")
+    Session getMaxDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) {
+        return  service.getMaxDurationByRoomId(eventId);
+    }
+
+    @GetMapping("/session-duration-by-room-min")
+    Session getMinDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) {
+        return service.getMinDurationByRoomId(eventId);
+    }
+
+
+    @GetMapping("/session-duration-max")
+    MaxMinSession getMaxSession() {
+        return service.getMaxSession();
+    }
+
+    @GetMapping("/session-duration-min")
+    MaxMinSession getMinSession() {
+        return service.getMinSession();
+    }
+
+    @GetMapping("/session-duration-by-user")
+    MaxMinSession getSessionDurationByUser(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
+        return service.getSessionDuration(username, eventId);
+    }
+
+    @GetMapping("/maximal-participants")
+    Participation getMaximalParticipants() {
+        return service.maximalParticipation();
+    }
+
+    @GetMapping("/minimal-participants")
+    Participation getMinimalParticipants() {
+        return service.minimalParticipation();
+    }
+
+    @GetMapping("/user-last-session-duration")
+    MaxMinSession getLastSessionDurationByUser(@RequestParam(name = "username") String username) {
+        return service.getLastSessionDuration(username);
+    }
+
+
 
     @PostMapping("/abort-event")
     void abortEvent(@RequestBody AbortEvent abortEvent) {
@@ -80,17 +173,12 @@ public class EventKpiController {
     @GetMapping("/findUsernameWithLeastEvents")
     ResponseEntity<String> findUsernameWithLeastEvents() {
         return
-                new ResponseEntity<String>(service.findUsernameWithLeastEvents(),HttpStatus.OK);
+                new ResponseEntity<String>(service.findUsernameWithLeastEvents(), HttpStatus.OK);
     }
 
     @GetMapping("/calculateAverageEventsPerUser")
     double calculateAverageEventsPerUser() {
         return service.calculateAverageEventsPerUser();
-    }
-
-    @GetMapping("/subscribe")
-    SseEmitter subscribe() throws IOException {
-        return service.subscribe();
     }
 
 
@@ -102,16 +190,6 @@ public class EventKpiController {
     @PostMapping("/view-event")
     void viewEventKpi(@RequestBody ViewEvent viewEvent) {
         service.handleViewAction(viewEvent);
-    }
-
-    @PostMapping("/join-room")
-    void joinRoomKpi(@RequestBody SessionAction sessionAction) {
-        service.handleSessionAction(sessionAction);
-    }
-
-    @PostMapping("/end-meeting")
-    void endRoomKpi(@RequestBody SessionAction sessionAction) {
-        service.handleClosingSession(sessionAction);
     }
 
     @PostMapping("/send-quiz")
