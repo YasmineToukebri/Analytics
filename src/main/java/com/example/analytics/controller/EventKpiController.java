@@ -1,5 +1,6 @@
 package com.example.analytics.controller;
 
+import com.example.analytics.Exception.emptyListException;
 import com.example.analytics.dto.CountEventViews;
 import com.example.analytics.dto.MaxMinSession;
 import com.example.analytics.dto.SessionAction;
@@ -34,7 +35,7 @@ public class EventKpiController {
     }
 
     @PostMapping("/view-event")
-    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) throws JsonProcessingException {
+    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) throws JsonProcessingException, emptyListException {
         return service.handleViewAction(viewEventAction);
     }
 
@@ -44,7 +45,7 @@ public class EventKpiController {
     }
 
     @PostMapping("/end-meeting")
-    Session endRoomKpi( @RequestBody SessionAction sessionAction) throws JsonProcessingException {
+    Session endRoomKpi( @RequestBody SessionAction sessionAction) throws JsonProcessingException, emptyListException {
         return service.handleClosingSession(sessionAction);
     }
 
@@ -73,7 +74,7 @@ public class EventKpiController {
     }
 
     @GetMapping("/session-duration")
-    void getSessionDuration(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
+    void getSessionDuration(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) throws emptyListException {
         service.getSessionDuration(username, eventId);
     }
 
@@ -93,48 +94,48 @@ public class EventKpiController {
     }
 
     @GetMapping("/max-views")
-    CountEventViews getMaxViews() {
+    CountEventViews getMaxViews() throws emptyListException {
         return  service.getMaxViews();
     }
 
     @GetMapping("/min-views")
-    CountEventViews getMinViews() {
+    CountEventViews getMinViews() throws emptyListException {
        return service.getMinViews();
     }
 
     @GetMapping("/session-duration-by-room-max")
-    Session getMaxDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) {
+    Session getMaxDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) throws emptyListException {
         return  service.getMaxDurationByRoomId(eventId);
     }
 
     @GetMapping("/session-duration-by-room-min")
-    Session getMinDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) {
+    Session getMinDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) throws emptyListException {
        return service.getMinDurationByRoomId(eventId);
     }
 
 
     @GetMapping("/session-duration-max")
-    MaxMinSession getMaxSession() {
+    MaxMinSession getMaxSession() throws emptyListException {
         return service.getMaxSession();
     }
 
     @GetMapping("/session-duration-min")
-    MaxMinSession getMinSession() {
+    MaxMinSession getMinSession() throws emptyListException {
         return service.getMinSession();
     }
 
     @GetMapping("/session-duration-by-user")
-    MaxMinSession getSessionDurationByUser(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
+    MaxMinSession getSessionDurationByUser(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) throws emptyListException {
     return service.getSessionDuration(username, eventId);
     }
 
     @GetMapping("/maximal-participants")
-    Participation getMaximalParticipants() {
+    Participation getMaximalParticipants() throws emptyListException {
         return service.maximalParticipation();
     }
 
     @GetMapping("/minimal-participants")
-    Participation getMinimalParticipants() {
+    Participation getMinimalParticipants() throws emptyListException {
         return service.minimalParticipation();
     }
 
@@ -150,7 +151,7 @@ public class EventKpiController {
 
 
     @GetMapping("/user-last-session-duration")
-    MaxMinSession getLastSessionDurationByUser(@RequestParam(name = "username") String username) {
+    MaxMinSession getLastSessionDurationByUser(@RequestParam(name = "username") String username) throws emptyListException {
         return service.getLastSessionDuration(username);
     }
 }

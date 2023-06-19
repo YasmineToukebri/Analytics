@@ -1,5 +1,6 @@
 package com.example.analytics.service;
 
+import com.example.analytics.Exception.emptyListException;
 import com.example.analytics.dto.CountEventViews;
 import com.example.analytics.dto.MaxMinSession;
 import com.example.analytics.dto.SessionAction;
@@ -22,13 +23,13 @@ public interface EventKpService {
     SseEmitter subscribe() throws IOException;
     void emitData(String action,String data);
 
-    ViewEventAction handleViewAction(ViewEventAction viewEventAction) throws JsonProcessingException;
+    ViewEventAction handleViewAction(ViewEventAction viewEventAction) throws JsonProcessingException, emptyListException;
 
     Session handleSessionAction(SessionAction sessionAction);
 
-    Session handleClosingSession(SessionAction sessionAction) throws JsonProcessingException;
+    Session handleClosingSession(SessionAction sessionAction) throws JsonProcessingException, emptyListException;
 
-    MaxMinSession getSessionDuration(String username, UUID roomId);
+    MaxMinSession getSessionDuration(String username, UUID roomId) throws emptyListException;
 
     long countEventQuizzResponses(UUID eventId);
 
@@ -44,23 +45,23 @@ public interface EventKpService {
     long countParticipantsByRoomId(UUID roomId);
 
 
-    CountEventViews getMaxViews();
+    CountEventViews getMaxViews() throws emptyListException;
 
-    CountEventViews getMinViews();
+    CountEventViews getMinViews() throws emptyListException;
 
-    Session getMaxDurationByRoomId(UUID roomId);
+    Session getMaxDurationByRoomId(UUID roomId) throws emptyListException;
 
-    Session getMinDurationByRoomId(UUID roomId);
+    Session getMinDurationByRoomId(UUID roomId) throws emptyListException;
 
-    MaxMinSession getMaxSession();
+    MaxMinSession getMaxSession() throws emptyListException;
 
-    MaxMinSession getMinSession();
+    MaxMinSession getMinSession() throws emptyListException;
 
     long getParticipantsNumber();
 
-    Participation maximalParticipation();
+    Participation maximalParticipation() throws emptyListException;
 
-    Participation minimalParticipation();
+    Participation minimalParticipation() throws emptyListException;
 
-    MaxMinSession getLastSessionDuration(String username);
+    MaxMinSession getLastSessionDuration(String username) throws emptyListException;
 }
