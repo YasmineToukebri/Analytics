@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+import static com.example.analytics.dto.EAction.COUNT_ALL_EVENTS;
+
 @RequiredArgsConstructor
 @Service
 public class EventService implements EventKpService {
@@ -53,7 +55,7 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public ViewEventAction handleViewAction(ViewEventAction viewEventAction) throws JsonProcessingException, EmptyListException {
+    public ViewEventAction handleViewAction(ViewEventAction viewEventAction) throws JsonProcessingException {
         viewEventAction.setSeenAt(LocalDateTime.now());
         ViewEventAction action = viewEventRepository.save(viewEventAction);
         JsonMapper jsonMapper = new JsonMapper();
@@ -138,16 +140,6 @@ public class EventService implements EventKpService {
                 .roomId(userSession.getRoomId())
                 .duration(userSession.getDuration().toHours()+"hours " + userSession.getDuration().toMinutes()+"minutes " + userSession.getDuration().toSeconds()+"seconds ")
                 .build();
-    }
-
-    @Override
-    public long countEventQuizzResponses(UUID eventId) {
-        return quizzActionRepository.countAllByEventId(eventId);
-    }
-
-    @Override
-    public long countQuizzByUser(String userName) {
-        return quizzActionRepository.countAllByUserName(userName);
     }
 
     @Override
@@ -296,7 +288,7 @@ public class EventService implements EventKpService {
     @Override
     public long countEventQuizzResponses(UUID eventId) {
         long countAll = quizzActionRepository.countAllByEventId(eventId);
-        this.emitData("quizzAction",countAll+"");
+        this.emitData(EAction.countQuizzPerEvent.toString(),countAll+"");
         return countAll;
     }
 
@@ -307,38 +299,41 @@ public class EventService implements EventKpService {
         abortEventRepository.save(abortEvent);
 
         String findUserWithLeastAbortedEvents= findUserWithLeastAbortedEvents();
-        this.emitData("findUserWithLeastAbortedEvents",findUserWithLeastAbortedEvents);
+        this.emitData(EAction.findUserWithLeastAbortedEvents.toString(),findUserWithLeastAbortedEvents);
 
         String findUserWithMostAbortedEvents= findUserWithMostAbortedEvents();
-        this.emitData("findUserWithMostAbortedEvents",findUserWithMostAbortedEvents);
+        this.emitData(EAction.findUserWithMostAbortedEvents.toString(),findUserWithMostAbortedEvents);
 
         long countEventsAborted = abortEventRepository.count();
-        this.emitData("abortEvent",countEventsAborted+"");
+        this.emitData(EAction.abortEvent.toString(),countEventsAborted+"");
 
 
         long countTotalAbortedEventToday = abortEventRepository.findTotalAbortedEventToday();
-        this.emitData("findTotalAbortedEventToday",countTotalAbortedEventToday+"");
+        this.emitData(EAction.findTotalAbortedEventToday.toString(),countTotalAbortedEventToday+"");
 
 
         long countTotalAbortedEventByCurrentWeek = abortEventRepository.findTotalAbortedEventByCurrentWeek();
-        this.emitData("findTotalAbortedEventByCurrentWeek",countTotalAbortedEventByCurrentWeek+"");
+        this.emitData(EAction.findTotalAbortedEventByCurrentWeek.toString(),countTotalAbortedEventByCurrentWeek+"");
 
         long countTotalAbortedEventByCurrentMonth = abortEventRepository.findTotalAbortedEventByCurrentMonth();
-        this.emitData("findTotalAbortedEventByCurrentMonth",countTotalAbortedEventByCurrentMonth+"");
+        this.emitData(EAction.findTotalAbortedEventByCurrentMonth.toString(),countTotalAbortedEventByCurrentMonth+"");
 
         double calculateAverageAbortedEventsPerUser = abortEventRepository.calculateAverageAbortedEventsPerUser();
-        this.emitData("calculateAverageAbortedEventsPerUser",calculateAverageAbortedEventsPerUser+"");
+        this.emitData(EAction.calculateAverageAbortedEventsPerUser.toString(),calculateAverageAbortedEventsPerUser+"");
     }
 
     @Override
     public String findUserWithLeastAbortedEvents() {
         List<String> findUserWithLeastAbortedEvents=abortEventRepository.findUserWithLeastAbortedEvents();
+        checkNullList(e -> e == null || e.isEmpty(), "No aborted event found", findUserWithLeastAbortedEvents);
         return findUserWithLeastAbortedEvents.get(0);
     }
 
     @Override
     public String findUserWithMostAbortedEvents() {
         List<String> findUserWithMostAbortedEvents=abortEventRepository.findUserWithMostAbortedEvents();
+        checkNullList(e -> e == null || e.isEmpty(), "No most aborted event found", findUserWithMostAbortedEvents);
+
         return findUserWithMostAbortedEvents.get(0);
     }
 
@@ -366,46 +361,46 @@ public class EventService implements EventKpService {
     public void addKpi(EventKpi eventKpi) {
         eventKpi.setEventId(UUID.randomUUID());
         eventKpi.setActionAt(LocalDateTime.now());
-        EventKpi eventKpi1 = eventKpiRepository.save(eventKpi);
+        eventKpiRepository.save(eventKpi);
 
         long totalEventsByUsername = countAllEventsByUserName(eventKpi.getUserName());
-        this.emitData("totalEventsByUsername",totalEventsByUsername+"");
+        this.emitData(EAction.totalEventsByUsername.toString(),totalEventsByUsername+"");
 
         String usernameWithMostEvents= getUsernameWithMostEvents();
-        this.emitData("findUsernameWithMostEvents",usernameWithMostEvents);
+        this.emitData(EAction.findUsernameWithMostEvents.toString(),usernameWithMostEvents);
 
 
         String usernameWithLeastEvents= findUsernameWithLeastEvents();
-        this.emitData("findUsernameWithLeastEvents",usernameWithLeastEvents);
+        this.emitData(EAction.findUsernameWithLeastEvents.toString() ,usernameWithLeastEvents);
 
 
         double calculateAverageEventsPerUser= calculateAverageEventsPerUser();
-        this.emitData("calculateAverageEventsPerUser",calculateAverageEventsPerUser+"");
+        this.emitData(EAction.calculateAverageEventsPerUser.toString() ,calculateAverageEventsPerUser+"");
 
         long totalEventsThisDay= findTotalByToday();
-        this.emitData("totalEventsThisDay",totalEventsThisDay+"");
+        this.emitData(EAction.totalEventsThisDay.toString() ,totalEventsThisDay+"");
 
         long totalEventsThisWeek = findTotalByCurrentWeek();
-        this.emitData("totalEventsThisWeek",totalEventsThisWeek+"");
+        this.emitData(EAction.totalEventsThisWeek.toString(),totalEventsThisWeek+"");
 
         long totalEventsThisMonth = findTotalByCurrentMonth();
-        this.emitData("totalEventsThisMonth",totalEventsThisMonth+"");
+        this.emitData(EAction.totalEventsThisMonth.toString(),totalEventsThisMonth+"");
 
 
 
         long findTotalByTodayAndUserName=findTotalByTodayAndUserName(eventKpi.getUserName());
-        this.emitData("findTotalByTodayAndUserName",findTotalByTodayAndUserName+"");
+        this.emitData(EAction.findTotalByTodayAndUserName.toString(),findTotalByTodayAndUserName+"");
 
         long findTotalByCurrentWeekAndUserName=findTotalByCurrentWeekAndUserName(eventKpi.getUserName());
-        this.emitData("findTotalByCurrentWeekAndUserName",findTotalByCurrentWeekAndUserName+"");
+        this.emitData(EAction.findTotalByCurrentWeekAndUserName.toString(),findTotalByCurrentWeekAndUserName+"");
 
         long findTotalByCurrentMonthAndUserName=findTotalByCurrentMonthAndUserName(eventKpi.getUserName());
-        this.emitData("findTotalByCurrentMonthAndUserName",findTotalByCurrentMonthAndUserName+"");
+        this.emitData(EAction.findTotalByCurrentMonthAndUserName.toString(),findTotalByCurrentMonthAndUserName+"");
 
 
 
         long countAll = eventKpiRepository.count();
-        this.emitData("addKpi",countAll+"");
+        this.emitData(COUNT_ALL_EVENTS.toString(),countAll+"");
 
     }
 
@@ -424,7 +419,7 @@ public class EventService implements EventKpService {
                 .action(action)
                 .data(data)
                 .build();
-        for (SseEmitter emitter : this.emitters) {
+        for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("message")
@@ -443,38 +438,10 @@ public class EventService implements EventKpService {
     }
 
     @Override
-    public void handleViewAction(ViewEvent viewEvent){
-        viewEvent.setSeenAt(LocalDateTime.now());
-        viewEventRepository.save(viewEvent);
-        this.emitData("viewEvent",this.countViewsByUser(viewEvent.getUserName()) + "");
-        this.emitData("viewEvent",this.viewEvent(viewEvent.getEventId()) + "");
-    }
-
-    @Override
-    public long getSessionDuration(String username){
-        Session session = sessionRepository.findAllByUserName(username);
-        long minutes = session.getLeaveActionAt().getMinute() - session.getEnterActionAt().getMinute();
-        long hours = session.getLeaveActionAt().getHour() - session.getEnterActionAt().getHour();
-        this.emitData("sessionAction",hours+"h"+minutes+"m");
-        return minutes;
-    }
-
-
-    @Override
     public long countQuizzByUser(String userName) {
         long countAll = quizzActionRepository.countAllByUserName(userName);
-        this.emitData("quizzAction",countAll+"");
+        this.emitData(EAction.countQuizzPerUser.toString(),countAll+"");
         return countAll;
-    }
-
-
-    @Override
-    public void persistQuizz(QuizzAction quizzAction) {
-        quizzAction.setPassedAt(LocalDateTime.now());
-        quizzActionRepository.save(quizzAction);
-        this.countEventQuizzResponses(quizzAction.getEventId());
-        this.emitData(  "quizzAction",this.countQuizzByUser(quizzAction.getUserName())+"");
-
     }
 
     @Override

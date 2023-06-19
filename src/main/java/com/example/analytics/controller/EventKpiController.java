@@ -29,7 +29,7 @@ public class EventKpiController {
     }
 
     @PostMapping("/view-event")
-    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) throws JsonProcessingException, EmptyListException {
+    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) throws JsonProcessingException {
         return service.handleViewAction(viewEventAction);
     }
 
@@ -39,13 +39,13 @@ public class EventKpiController {
     }
 
     @PostMapping("/end-meeting")
-    Session endRoomKpi( @RequestBody SessionAction sessionAction) throws JsonProcessingException, EmptyListException {
+    Session endRoomKpi( @RequestBody SessionAction sessionAction) throws JsonProcessingException {
         return service.handleClosingSession(sessionAction);
     }
 
     @GetMapping("/session-duration")
-    void getSessionDuration(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
-        service.getSessionDuration(username, eventId);
+    MaxMinSession getSessionDuration(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
+       return service.getSessionDuration(username, eventId);
     }
 
     @GetMapping("/participants")
@@ -94,11 +94,6 @@ public class EventKpiController {
         return service.getMinSession();
     }
 
-    @GetMapping("/session-duration-by-user")
-    MaxMinSession getSessionDurationByUser(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
-        return service.getSessionDuration(username, eventId);
-    }
-
     @GetMapping("/maximal-participants")
     Participation getMaximalParticipants() {
         return service.maximalParticipation();
@@ -130,10 +125,10 @@ public class EventKpiController {
         return service.countAllEventsByUserName(userName);
     }
 
-    @GetMapping("/countEventsAborted")
-    long countEventsAborted() {
-        return abortEventRepository.count();
-    }
+//    @GetMapping("/countEventsAborted")
+//    long countEventsAborted() {
+//        return abortEventRepository.count();
+//    }
 
     @GetMapping("/findUserWithLeastAbortedEvents")
     String findUserWithLeastAbortedEvents() {
@@ -187,11 +182,6 @@ public class EventKpiController {
         service.addKpi(eventKpi);
     }
 
-    @PostMapping("/view-event")
-    void viewEventKpi(@RequestBody ViewEvent viewEvent) {
-        service.handleViewAction(viewEvent);
-    }
-
     @PostMapping("/send-quiz")
     void sendQuizKpi(@RequestBody QuizzAction quizzAction) {
         service.persistQuizz(quizzAction);
@@ -220,11 +210,6 @@ public class EventKpiController {
     @GetMapping("/views-by-event")
     long countViewsByEvent(@RequestParam(name = "eventid") UUID viewEvent) {
         return service.viewEvent(viewEvent);
-    }
-
-    @GetMapping("/session-duration")
-    long getSessionDuration(@RequestParam(name = "username") String username) {
-        return service.getSessionDuration(username);
     }
 
     @GetMapping("/total-events-today")

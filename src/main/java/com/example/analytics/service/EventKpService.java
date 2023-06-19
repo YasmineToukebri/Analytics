@@ -19,10 +19,6 @@ public interface EventKpService {
 
     void emitData(String action, String data);
 
-    void handleViewAction(ViewEvent viewEvent);
-
-    long getSessionDuration(String username);
-
     String getUsernameWithMostEvents();
 
     String findUsernameWithLeastEvents();

@@ -13,6 +13,25 @@ public enum EAction {
     minimalParticipation,
     countQuizzPerEvent,
     countQuizzPerUser,
+    findUserWithLeastAbortedEvents,
+    findUserWithMostAbortedEvents,
+    abortEvent,
+    findTotalAbortedEventToday,
+    findTotalAbortedEventByCurrentWeek,
+    findTotalAbortedEventByCurrentMonth,
+    calculateAverageAbortedEventsPerUser,
+    totalEventsByUsername,
+    findUsernameWithMostEvents,
+    findUsernameWithLeastEvents,
+    calculateAverageEventsPerUser,
+    totalEventsThisDay,
+    totalEventsThisWeek,
+    totalEventsThisMonth,
+    findTotalByTodayAndUserName,
+    findTotalByCurrentWeekAndUserName,
+    findTotalByCurrentMonthAndUserName,
+
+    COUNT_ALL_EVENTS
 
 
 }
