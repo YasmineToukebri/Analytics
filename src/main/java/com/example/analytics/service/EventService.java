@@ -2,8 +2,6 @@ package com.example.analytics.service;
 
 import com.example.analytics.dto.DataToEmit;
 import com.example.analytics.dto.SessionAction;
-import com.example.Analytics.models.*;
-import com.example.Analytics.repository.*;
 import com.example.analytics.models.*;
 import com.example.analytics.repository.*;
 import lombok.RequiredArgsConstructor;
