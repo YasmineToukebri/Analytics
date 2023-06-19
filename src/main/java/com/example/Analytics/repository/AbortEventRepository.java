@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface AbortEventRepository extends JpaRepository<AbortEvent, UUID> {
 
-    @Query("SELECT a.userName FROM AbortEvent a GROUP BY a.userName ORDER BY COUNT(a) ASC")
+    @Query("SELECT a.userName FROM AbortEvent a GROUP BY a.userName ORDER BY COUNT(a)")
     List<String> findUserWithLeastAbortedEvents();
 
     @Query("SELECT a.userName FROM AbortEvent a GROUP BY a.userName ORDER BY COUNT(a) DESC")

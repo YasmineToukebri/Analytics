@@ -128,7 +128,11 @@ public class EventService implements EventKpService {
     @Override
     public void addKpi(EventKpi eventKpi) {
         eventKpi.setEventId(UUID.randomUUID());
+        eventKpi.setCreatedAt(LocalDateTime.now());
         EventKpi eventKpi1 = eventKpiRepository.save(eventKpi);
+
+        long totalEventsByUsername = countAllEventsByUserName(eventKpi.getUserName());
+        this.emitData("totalEventsByUsername",totalEventsByUsername+"");
 
         String usernameWithMostEvents= getUsernameWithMostEvents();
         this.emitData("findUsernameWithMostEvents",usernameWithMostEvents);
@@ -139,14 +143,29 @@ public class EventService implements EventKpService {
 
 
         double calculateAverageEventsPerUser= calculateAverageEventsPerUser();
-        this.emitData("findUsernameWithLeastEvents",usernameWithLeastEvents+"");
+        this.emitData("calculateAverageEventsPerUser",calculateAverageEventsPerUser+"");
 
         long totalEventsThisDay= findTotalByToday();
         this.emitData("totalEventsThisDay",totalEventsThisDay+"");
+
         long totalEventsThisWeek = findTotalByCurrentWeek();
         this.emitData("totalEventsThisWeek",totalEventsThisWeek+"");
+
         long totalEventsThisMonth = findTotalByCurrentMonth();
         this.emitData("totalEventsThisMonth",totalEventsThisMonth+"");
+
+
+
+        long findTotalByTodayAndUserName=findTotalByTodayAndUserName(eventKpi.getUserName());
+        this.emitData("findTotalByTodayAndUserName",findTotalByTodayAndUserName+"");
+
+        long findTotalByCurrentWeekAndUserName=findTotalByCurrentWeekAndUserName(eventKpi.getUserName());
+        this.emitData("findTotalByCurrentWeekAndUserName",findTotalByCurrentWeekAndUserName+"");
+
+        long findTotalByCurrentMonthAndUserName=findTotalByCurrentMonthAndUserName(eventKpi.getUserName());
+        this.emitData("findTotalByCurrentMonthAndUserName",findTotalByCurrentMonthAndUserName+"");
+
+
 
         long countAll = eventKpiRepository.count();
         this.emitData("addKpi",countAll+"");

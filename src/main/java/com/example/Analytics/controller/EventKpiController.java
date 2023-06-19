@@ -28,7 +28,7 @@ public class EventKpiController {
         service.abortEvent(abortEvent);
     }
 
-    @GetMapping("count-events")
+    @GetMapping("/count-events")
     long countEvents(){
         return service.countALlEvents();
     }
@@ -92,6 +92,7 @@ public class EventKpiController {
     SseEmitter subscribe() throws IOException {
         return service.subscribe();
     }
+
 
     @PostMapping("/create-event")
     void addEventKpi(@RequestBody EventKpi eventKpi) {
