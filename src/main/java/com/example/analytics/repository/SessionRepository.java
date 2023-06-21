@@ -41,7 +41,7 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
     List<Session> getSessionsByUserName(String username);
 
 
-    @Query("select count(s.userName) from Session s")
+    @Query("select count(DISTINCT s.userName) from Session s")
     long countParticipants();
 
 }
