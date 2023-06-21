@@ -252,6 +252,7 @@ public class EventService implements EventKpService {
         Session userLastSession = userSessions.get(0);
         return MaxMinSession.builder()
                 .roomId(userLastSession.getRoomId())
+                .userName(userLastSession.getUserName())
                 .duration(userLastSession.getDuration().toHours()+"hours " + userLastSession.getDuration().toMinutes()+"minutes ")
                 .build();
     }
