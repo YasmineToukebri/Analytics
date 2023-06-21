@@ -37,6 +37,11 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
     @Query("SELECT count(roomId) as countParticipants, roomId as roomId FROM Session group by roomId order by count(*) DESC")
     List<Participation> getMaximalParticipation();
 
-    @Query("select s from Session s where s.userName=?1 order by s.leaveActionAt ASC")
+    @Query("select s from Session s where s.userName=?1 order by s.leaveActionAt DESC")
     List<Session> getSessionsByUserName(String username);
+
+
+    @Query("select count(s.userName) from Session s")
+    long countParticipants();
+
 }

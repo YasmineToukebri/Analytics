@@ -1,13 +1,11 @@
 package com.example.analytics.controller;
 
-import com.example.analytics.exception.EmptyListException;
 import com.example.analytics.dto.CountEventViews;
 import com.example.analytics.dto.MaxMinSession;
+import com.example.analytics.dto.Participation;
 import com.example.analytics.dto.SessionAction;
 import com.example.analytics.models.*;
-import com.example.analytics.models.ViewEventAction;
 import com.example.analytics.service.EventKpService;
-import com.example.analytics.dto.Participation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -108,8 +106,6 @@ public class EventKpiController {
     MaxMinSession getLastSessionDurationByUser(@RequestParam(name = "username") String username) {
         return service.getLastSessionDuration(username);
     }
-
-
 
     @PostMapping("/abort-event")
     void abortEvent(@RequestBody AbortEvent abortEvent) {

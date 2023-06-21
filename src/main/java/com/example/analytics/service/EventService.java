@@ -138,7 +138,7 @@ public class EventService implements EventKpService {
         }
         return MaxMinSession.builder()
                 .roomId(userSession.getRoomId())
-                .duration(userSession.getDuration().toHours()+"hours " + userSession.getDuration().toMinutes()+"minutes " + userSession.getDuration().toSeconds()+"seconds ")
+                .duration(userSession.getDuration().toHours()+"hours " + userSession.getDuration().toMinutes()+"minutes ")
                 .build();
     }
 
@@ -165,7 +165,7 @@ public class EventService implements EventKpService {
 
     @Override
     public long getParticipantsNumber(){
-        return sessionRepository.count();
+        return sessionRepository.countParticipants();
     }
 
     @Override
@@ -213,7 +213,7 @@ public class EventService implements EventKpService {
         return MaxMinSession.builder()
                 .userName(maxSession.getUserName())
                 .roomId(maxSession.getRoomId())
-                .duration(maxSession.getDuration().toHours()+"hours" + maxSession.getDuration().toMinutes()+"minutes" + maxSession.getDuration().toSeconds()+"seconds")
+                .duration(maxSession.getDuration().toHours()+"hours" + maxSession.getDuration().toMinutes()+"minutes")
                 .build();
     }
 
@@ -225,7 +225,7 @@ public class EventService implements EventKpService {
         return MaxMinSession.builder()
                 .userName(minSession.getUserName())
                 .roomId(minSession.getRoomId())
-                .duration(minSession.getDuration().toHours()+"hours" + minSession.getDuration().toMinutes()+"minutes" + minSession.getDuration().toSeconds()+"seconds")
+                .duration(minSession.getDuration().toHours()+"hours" + minSession.getDuration().toMinutes()+"minutes")
                 .build();
     }
 
@@ -252,7 +252,7 @@ public class EventService implements EventKpService {
         Session userLastSession = userSessions.get(0);
         return MaxMinSession.builder()
                 .roomId(userLastSession.getRoomId())
-                .duration(userLastSession.getDuration().toHours()+"hours " + userLastSession.getDuration().toMinutes()+"minutes " + userLastSession.getDuration().toSeconds()+"seconds ")
+                .duration(userLastSession.getDuration().toHours()+"hours " + userLastSession.getDuration().toMinutes()+"minutes ")
                 .build();
     }
 
