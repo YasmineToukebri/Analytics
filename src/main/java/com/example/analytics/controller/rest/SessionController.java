@@ -17,7 +17,6 @@ import java.util.UUID;
 public class SessionController {
     private SessionService sessionService;
 
-
     @PostMapping("/join-room")
     Session joinRoomKpi(@RequestBody SessionAction sessionAction) {
         return sessionService.handleSessionAction(sessionAction);
@@ -48,8 +47,6 @@ public class SessionController {
         return sessionService.countParticipantsByRoomId(roomId);
     }
 
-
-
     @GetMapping("/session-duration-by-room-max")
     Session getMaxDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) {
         return  sessionService.getMaxDurationByRoomId(eventId);
@@ -59,7 +56,6 @@ public class SessionController {
     Session getMinDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) {
         return sessionService.getMinDurationByRoomId(eventId);
     }
-
 
     @GetMapping("/session-duration-max")
     MaxMinSession getMaxSession() {

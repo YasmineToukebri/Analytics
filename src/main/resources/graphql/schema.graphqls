@@ -1,5 +1,6 @@
 scalar DateTime
 scalar Time
+
 type AbortEvent {
     id:ID!
     userName: String!
@@ -39,25 +40,56 @@ type Session {
     duration: Time
 }
 
-type ViewEvenAction {
+type ViewEventAction {
     id:ID!
     userName:String!
     eventId:String!
     seenAt: DateTime
 }
+
+type MaxMinSession {
+    userName:String!
+    roomId:String!
+    duration: String!
+}
+
+interface Participation {
+    getRoomId:String
+    getCountParticipants:Int
+}
+interface CountEventViews {
+    getEventId:String
+    getCountViews:Int
+}
+
 input AbortEventInput {
     userName: String!
     eventId: String!
 }
+
 input EventInput {
     userName: String!
     eventId: String!
 }
+
 input QuizActionInput {
     userName:String!
     eventId:String!
     quizId:String!
 }
+
+input SessionActionInput {
+    userName: String!
+    eventId: String!
+}
+
+input ViewEventActionInput {
+    id:ID!
+    userName:String!
+    eventId:String!
+    seenAt: DateTime
+}
+
 type Query {
     #  aborted events
     countEventsAborted: Int
@@ -83,11 +115,30 @@ type Query {
     countQuizzByUser : Int
     countQuizzByEvent : Int
     #    Session
+    getSessionDuration(sessionActionINput:SessionActionInput): MaxMinSession
+    countParticipants: Int
+    countEventsParticipantAt(userName:String): Int
+    countParticipantsByRoomId(roomId:String): Int
+    getMaxDurationByEventId(eventId:String): Session
+    getMinDurationByEventId(eventId:String): Session
+    getMaxSession: MaxMinSession
+    getMinSession: MaxMinSession
+    getMaximalParticipants: Participation
+    getMinimalParticipants: Participation
+    getLastSessionDurationByUser: MaxMinSession
     #    View Event
+    countViewsByUser(userName:String):Int
+    countViewsByEvent(eventId:String):Int
+    getMaxViews:CountEventViews
+    getMinViews:CountEventViews
+
 }
 type Mutation {
     abortEvent(abortEventInput:AbortEventInput): AbortEvent
     addEventKpi(eventInput:EventInput):EventKpi
     sendQuizKpi(quizActionInput:QuizActionInput):QuizzAction
     passQuizKpi(quizActionInput:QuizActionInput):QuizzAction
+    joinRoomKpi(sessionActionInput:SessionActionInput):Session
+    endRoomKpi(sessionActionInput:SessionActionInput):Session
+    viewEventKpi(viewEventActionInput:ViewEventActionInput):ViewEventAction
 }
