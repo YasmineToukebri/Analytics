@@ -23,8 +23,8 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor
 @Service
 public class SessionServiceImpl implements SessionService {
-    private SessionRepository sessionRepository;
-    private SSEService sseService;
+    private final SessionRepository sessionRepository;
+    private final SSEService sseService;
     @Override
     public Session handleSessionAction(SessionAction sessionAction) {
         Session existingSession = sessionRepository.findAllByUserNameAndRoomId(sessionAction.getUserName(),sessionAction.getRoomId());

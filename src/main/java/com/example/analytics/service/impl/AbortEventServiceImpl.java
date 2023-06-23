@@ -17,8 +17,8 @@ import java.util.function.Predicate;
 @Service
 public class AbortEventServiceImpl implements AbortEventService {
 
-    private SSEService sseService;
-    private AbortEventRepository abortEventRepository;
+    private final SSEService sseService;
+    private final AbortEventRepository abortEventRepository;
 
     @Override
     public void abortEvent(AbortEvent abortEvent) {
@@ -60,6 +60,12 @@ public class AbortEventServiceImpl implements AbortEventService {
 
         return findUserWithMostAbortedEvents.get(0);
     }
+
+    @Override
+    public Long findTotalAbortedEvents() {
+        return abortEventRepository.count();
+    }
+
     @Override
     public Long findTotalAbortedEventToday() {
         return abortEventRepository.findTotalAbortedEventToday();

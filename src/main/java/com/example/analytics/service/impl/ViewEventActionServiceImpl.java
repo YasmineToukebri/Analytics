@@ -24,8 +24,8 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor
 @Service
 public class ViewEventActionServiceImpl implements ViewEventActionService {
-    private ViewEventRepository viewEventRepository;
-    private SSEService sseService;
+    private final ViewEventRepository viewEventRepository;
+    private final SSEService sseService;
     @Override
     public long viewEvent(UUID viewEvent) {
         long countAll = viewEventRepository.countAllByEventId(viewEvent);

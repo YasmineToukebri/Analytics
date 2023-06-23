@@ -9,6 +9,7 @@ public interface AbortEventService {
 
     String findUserWithMostAbortedEvents();
 
+    Long findTotalAbortedEvents();
     Long findTotalAbortedEventToday();
 
     Long findTotalAbortedEventByCurrentWeek();

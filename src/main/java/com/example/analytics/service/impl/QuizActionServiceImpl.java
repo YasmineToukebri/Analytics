@@ -16,8 +16,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class QuizActionServiceImpl implements QuizActionService {
-    private QuizAction quizActionRepository;
-    private SSEService sseService;
+    private final QuizAction quizActionRepository;
+    private final SSEService sseService;
     @Override
     public long countEventQuizzResponses(UUID eventId) {
         long countAll = quizActionRepository.countAllByEventId(eventId);

@@ -6,6 +6,7 @@ import com.example.analytics.dto.Participation;
 import com.example.analytics.dto.SessionAction;
 import com.example.analytics.models.*;
 import com.example.analytics.service.EventKpService;
+import com.example.analytics.service.EventKpiService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,97 +21,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @RequestMapping("/monitoring")
 public class EventKpiController {
-    private EventKpService service;
-    @GetMapping("/subscribe")
-    SseEmitter subscribe() throws IOException {
-        return service.subscribe();
-    }
-
-    @PostMapping("/view-event")
-    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) throws JsonProcessingException {
-        return service.handleViewAction(viewEventAction);
-    }
-
-    @PostMapping("/join-room")
-    Session joinRoomKpi(@RequestBody SessionAction sessionAction) {
-        return service.handleSessionAction(sessionAction);
-    }
-
-    @PostMapping("/end-meeting")
-    Session endRoomKpi( @RequestBody SessionAction sessionAction) throws JsonProcessingException {
-        return service.handleClosingSession(sessionAction);
-    }
-
-    @GetMapping("/session-duration")
-    MaxMinSession getSessionDuration(@RequestParam(name = "username") String username, @RequestParam(name = "event_Id") UUID eventId) {
-       return service.getSessionDuration(username, eventId);
-    }
-
-    @GetMapping("/participants")
-    long countParticipants() {
-        return service.getParticipantsNumber();
-    }
-
-    @GetMapping("/events-participated")
-    long countEventsParticipantAt(@RequestParam(name = "username") String username) {
-        return service.countEventsParticpatedAt(username);
-    }
-
-    @GetMapping("/participants-by-room")
-    long countParticipantsByRoomId(@RequestParam(name = "roomId") UUID roomId) {
-        return service.countParticipantsByRoomId(roomId);
-    }
-
-    @GetMapping("/max-views")
-    CountEventViews getMaxViews() {
-        return  service.getMaxViews();
-    }
-
-    @GetMapping("/min-views")
-    CountEventViews getMinViews() {
-        return service.getMinViews();
-    }
-
-    @GetMapping("/session-duration-by-room-max")
-    Session getMaxDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) {
-        return  service.getMaxDurationByRoomId(eventId);
-    }
-
-    @GetMapping("/session-duration-by-room-min")
-    Session getMinDurationByEventId(@RequestParam(name = "event_Id") UUID eventId) {
-        return service.getMinDurationByRoomId(eventId);
-    }
-
-
-    @GetMapping("/session-duration-max")
-    MaxMinSession getMaxSession() {
-        return service.getMaxSession();
-    }
-
-    @GetMapping("/session-duration-min")
-    MaxMinSession getMinSession() {
-        return service.getMinSession();
-    }
-
-    @GetMapping("/maximal-participants")
-    Participation getMaximalParticipants() {
-        return service.maximalParticipation();
-    }
-
-    @GetMapping("/minimal-participants")
-    Participation getMinimalParticipants() {
-        return service.minimalParticipation();
-    }
-
-    @GetMapping("/user-last-session-duration")
-    MaxMinSession getLastSessionDurationByUser(@RequestParam(name = "username") String username) {
-        return service.getLastSessionDuration(username);
-    }
-
-    @PostMapping("/abort-event")
-    void abortEvent(@RequestBody AbortEvent abortEvent) {
-        service.abortEvent(abortEvent);
-    }
+    private EventKpiService service;
 
     @GetMapping("/count-events")
     long countEvents(){
@@ -119,41 +30,6 @@ public class EventKpiController {
     @GetMapping("count-events/{userName}")
     long countEventsByUserName(@PathVariable String userName){
         return service.countAllEventsByUserName(userName);
-    }
-
-//    @GetMapping("/countEventsAborted")
-//    long countEventsAborted() {
-//        return abortEventRepository.count();
-//    }
-
-    @GetMapping("/findUserWithLeastAbortedEvents")
-    String findUserWithLeastAbortedEvents() {
-        return service.findUserWithLeastAbortedEvents();
-    }
-
-    @GetMapping("/findUserWithMostAbortedEvents")
-    String findUserWithMostAbortedEvents() {
-        return service.findUserWithMostAbortedEvents();
-    }
-
-    @GetMapping("/findTotalAbortedEventToday")
-    long findTotalAbortedEventToday() {
-        return service.findTotalAbortedEventToday();
-    }
-
-    @GetMapping("/findTotalAbortedEventByCurrentWeek")
-    long findTotalAbortedEventByCurrentWeek() {
-        return service.findTotalAbortedEventByCurrentWeek();
-    }
-
-    @GetMapping("/findTotalAbortedEventByCurrentMonth")
-    long findTotalAbortedEventByCurrentMonth() {
-        return service.findTotalAbortedEventByCurrentMonth();
-    }
-
-    @GetMapping("/calculateAverageAbortedEventsPerUser")
-    double calculateAverageAbortedEventsPerUser() {
-        return service.calculateAverageAbortedEventsPerUser();
     }
 
     @GetMapping("/findUsernameWithMostEvents")
@@ -178,35 +54,6 @@ public class EventKpiController {
         service.addKpi(eventKpi);
     }
 
-    @PostMapping("/send-quiz")
-    void sendQuizKpi(@RequestBody QuizzAction quizzAction) {
-        service.persistQuizz(quizzAction);
-    }
-
-    @PostMapping("/pass-quiz")
-    void passQuizKpi(@RequestBody QuizzAction quizzAction) {
-        service.persistQuizz(quizzAction);
-    }
-
-    @GetMapping("/quizz-by-user")
-    long countQuizzByUser(@RequestParam(name = "username") String userName) {
-        return service.countQuizzByUser(userName);
-    }
-
-    @GetMapping("/quizz-by-event")
-    long countQuizzByEvent(@RequestParam(name = "eventid") UUID eventId) {
-        return service.countEventQuizzResponses(eventId);
-    }
-
-    @GetMapping("/views-by-user")
-    long countViewsByUser(@RequestParam(name = "username") String userName) {
-        return service.countViewsByUser(userName);
-    }
-
-    @GetMapping("/views-by-event")
-    long countViewsByEvent(@RequestParam(name = "eventid") UUID viewEvent) {
-        return service.viewEvent(viewEvent);
-    }
 
     @GetMapping("/total-events-today")
     long getTotalEventsToday() {

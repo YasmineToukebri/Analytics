@@ -18,8 +18,8 @@ import static com.example.analytics.dto.EAction.COUNT_ALL_EVENTS;
 @Service
 public class EventKpiServiceImpl implements EventKpiService {
 
-    private EventKpiRepository eventKpiRepository;
-    private SSEService sseService;
+    private final EventKpiRepository eventKpiRepository;
+    private final SSEService sseService;
 
     @Override
     public void addKpi(EventKpi eventKpi) {
