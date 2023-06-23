@@ -1,6 +1,17 @@
 server:
   port: ${SERVER_PORT:8083}
 
+graphql:
+  date-scalar:
+    format: yyyy-MM-dd
+    name: Date
+    enabled: true
+  extended-scalars: Date
+  exception-handlers-enabled: true
+  extended-scalars-enabled: true
+  extended-scalars-date-format: yyyy-MM-dd
+  servlet:
+    mapping: /graphql
 spring:
   datasource:
     host: ${DB_HOST:localhost}

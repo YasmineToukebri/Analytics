@@ -1,4 +1,4 @@
-package com.example.analytics.controller;
+package com.example.analytics.controller.rest;
 
 import com.example.analytics.models.AbortEvent;
 import com.example.analytics.service.AbortEventService;

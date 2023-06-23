@@ -1,0 +1,93 @@
+scalar DateTime
+scalar Time
+type AbortEvent {
+    id:ID!
+    userName: String!
+    eventId: String!
+    abortedAt: DateTime!
+}
+
+type EventKpi {
+    id:ID!
+    userName:String!
+    eventId:String!
+    actionAt:DateTime!
+}
+
+type KpiAction {
+    id:ID!
+    userName:String!
+    eventId:String!
+}
+
+type QuizzAction{
+    id:ID!
+    userName:String!
+    eventId:String!
+    quizId:String!
+    passedAt:DateTime!
+}
+
+type Session {
+    id:ID!
+    userName:String!
+    eventId:String!
+    roomId:String!
+    action:String!
+    enterActionAt: DateTime
+    leaveActionAt: DateTime
+    duration: Time
+}
+
+type ViewEvenAction {
+    id:ID!
+    userName:String!
+    eventId:String!
+    seenAt: DateTime
+}
+input AbortEventInput {
+    userName: String!
+    eventId: String!
+}
+input EventInput {
+    userName: String!
+    eventId: String!
+}
+input QuizActionInput {
+    userName:String!
+    eventId:String!
+    quizId:String!
+}
+type Query {
+    #  aborted events
+    countEventsAborted: Int
+    findTotalAbortedEventToday: Int
+    findTotalAbortedEventByCurrentWeek: Int
+    findTotalAbortedEventByCurrentMonth: Int
+    calculateAverageAbortedEventsPerUser: Float
+    findUserWithLeastAbortedEvents: String
+    findUserWithMostAbortedEvents: String
+    #    Add Events
+    countEvents :Int
+    countEventsByUserName(userName:String) :Int
+    findUsernameWithMostEvents :String
+    findUsernameWithLeastEvents :String
+    calculateAverageEventsPerUser :Float
+    getTotalEventsToday :Int
+    getTotalEventsThisWeek :Int
+    getTotalEventsThisMonth :Int
+    getTotalEventsTodayByUsername(userName:String) :Int
+    getTotalEventsThisWeekByUsername(userName:String) :Int
+    getTotalEventsThisMonthByUsername(userName:String) :Int
+    #    Quiz Action
+    countQuizzByUser : Int
+    countQuizzByEvent : Int
+    #    Session
+    #    View Event
+}
+type Mutation {
+    abortEvent(abortEventInput:AbortEventInput): AbortEvent
+    addEventKpi(eventInput:EventInput):EventKpi
+    sendQuizKpi(quizActionInput:QuizActionInput):QuizzAction
+    passQuizKpi(quizActionInput:QuizActionInput):QuizzAction
+}

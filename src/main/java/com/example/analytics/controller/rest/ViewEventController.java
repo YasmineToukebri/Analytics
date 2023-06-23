@@ -1,4 +1,4 @@
-package com.example.analytics.controller;
+package com.example.analytics.controller.rest;
 
 
 import com.example.analytics.dto.CountEventViews;

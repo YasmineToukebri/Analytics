@@ -22,7 +22,6 @@ public class AbortEvent {
     private UUID id;
     private String userName;
     private UUID eventId;
-
     private LocalDateTime abortedAt;
 
 }
