@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/monitoring")
-public class AbortEventController {
+public class AbortEventRestController {
     private AbortEventService abortEventService;
 
     @PostMapping("/abort-event")

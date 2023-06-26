@@ -1,18 +1,20 @@
 scalar DateTime
 scalar Time
+scalar LocalDateTime
+
 
 type AbortEvent {
     id:ID!
     userName: String!
     eventId: String!
-    abortedAt: DateTime!
+    abortedAt: LocalDateTime!
 }
 
 type EventKpi {
     id:ID!
     userName:String!
     eventId:String!
-    actionAt:DateTime!
+    actionAt:LocalDateTime!
 }
 
 type KpiAction {
@@ -26,7 +28,7 @@ type QuizzAction{
     userName:String!
     eventId:String!
     quizId:String!
-    passedAt:DateTime!
+    passedAt:LocalDateTime!
 }
 
 type Session {
@@ -35,8 +37,8 @@ type Session {
     eventId:String!
     roomId:String!
     action:String!
-    enterActionAt: DateTime
-    leaveActionAt: DateTime
+    enterActionAt: LocalDateTime
+    leaveActionAt: LocalDateTime
     duration: Time
 }
 
@@ -44,20 +46,20 @@ type ViewEventAction {
     id:ID!
     userName:String!
     eventId:String!
-    seenAt: DateTime
+    seenAt: LocalDateTime
 }
 
 type MaxMinSession {
-    userName:String!
+    userName:String
     roomId:String!
     duration: String!
 }
 
-interface Participation {
+type Participation {
     getRoomId:String
     getCountParticipants:Int
 }
-interface CountEventViews {
+type CountEventViews {
     getEventId:String
     getCountViews:Int
 }
@@ -87,7 +89,7 @@ input ViewEventActionInput {
     id:ID!
     userName:String!
     eventId:String!
-    seenAt: DateTime
+    seenAt: LocalDateTime
 }
 
 type Query {
@@ -112,10 +114,10 @@ type Query {
     getTotalEventsThisWeekByUsername(userName:String) :Int
     getTotalEventsThisMonthByUsername(userName:String) :Int
     #    Quiz Action
-    countQuizzByUser : Int
-    countQuizzByEvent : Int
+    countQuizzByUser(userName:String) : Int
+    countQuizzByEvent(eventId:String) : Int
     #    Session
-    getSessionDuration(sessionActionINput:SessionActionInput): MaxMinSession
+    getSessionDuration(userName:String, eventId:String): MaxMinSession
     countParticipants: Int
     countEventsParticipantAt(userName:String): Int
     countParticipantsByRoomId(roomId:String): Int
@@ -125,7 +127,7 @@ type Query {
     getMinSession: MaxMinSession
     getMaximalParticipants: Participation
     getMinimalParticipants: Participation
-    getLastSessionDurationByUser: MaxMinSession
+    getLastSessionDurationByUser(userName:String): MaxMinSession
     #    View Event
     countViewsByUser(userName:String):Int
     countViewsByEvent(eventId:String):Int

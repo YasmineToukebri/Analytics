@@ -10,7 +10,7 @@ import java.util.UUID;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/monitoring")
-public class QuizActionController {
+public class QuizActionRestController {
     private QuizActionService quizActionService;
 
     @PostMapping("/send-quiz")

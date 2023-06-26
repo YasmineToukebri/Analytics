@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/monitoring")
-public class EventKpiController {
+public class EventKpiRestController {
     private EventKpiService service;
 
     @GetMapping("/count-events")

@@ -14,7 +14,7 @@ import java.util.UUID;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/monitoring")
-public class SessionController {
+public class SessionRestController {
     private SessionService sessionService;
 
     @PostMapping("/join-room")

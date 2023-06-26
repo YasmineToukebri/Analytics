@@ -1,4 +1,4 @@
-package com.example.analytics.controller.rest;
+package com.example.analytics.controller.graphql;
 
 
 import com.example.analytics.dto.CountEventViews;
@@ -6,36 +6,39 @@ import com.example.analytics.models.ViewEventAction;
 import com.example.analytics.service.ViewEventActionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@RestController
 @AllArgsConstructor
-@RequestMapping("/monitoring")
+@Controller
 public class ViewEventController {
     private ViewEventActionService viewEventActionService;
 
-    @PostMapping("/view-event")
-    ViewEventAction viewEventKpi(@RequestBody ViewEventAction viewEventAction) throws JsonProcessingException {
+    @MutationMapping
+    ViewEventAction viewEventKpi(@Argument("viewEventActionInput") ViewEventAction viewEventAction) throws JsonProcessingException {
         return viewEventActionService.handleViewAction(viewEventAction);
     }
-    @GetMapping("/views-by-user")
-    long countViewsByUser(@RequestParam(name = "username") String userName) {
+    @QueryMapping
+    long countViewsByUser(@Argument String userName) {
         return viewEventActionService.countViewsByUser(userName);
     }
 
-    @GetMapping("/views-by-event")
-    long countViewsByEvent(@RequestParam(name = "eventid") UUID viewEvent) {
+    @QueryMapping
+    long countViewsByEvent(@Argument("eventId") UUID viewEvent) {
         return viewEventActionService.viewEvent(viewEvent);
     }
 
-    @GetMapping("/max-views")
+    @QueryMapping
     CountEventViews getMaxViews() {
         return  viewEventActionService.getMaxViews();
     }
 
-    @GetMapping("/min-views")
+    @QueryMapping
     CountEventViews getMinViews() {
         return viewEventActionService.getMinViews();
     }
